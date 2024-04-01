@@ -1,4 +1,3 @@
-import { SxProps } from "@mui/material"
 
 interface skeletonStyles{
     

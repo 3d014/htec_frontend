@@ -4,9 +4,9 @@ import styles from "./skeleton.styles"
 
 
 const Skeleton=()=>{
-let autentifikovan:boolean=true
+let autentifikovan:boolean=false
 return <>
-{autentifikovan?<Login/>:<Box></Box>>}
+{autentifikovan?<Login/>:<Box>Radi</Box>}
 
  
 
