@@ -4,7 +4,13 @@ import styles from "./skeleton.styles"
 
 
 const Skeleton=()=>{
-let autentifikovan:boolean=false
+let autentifikovan:boolean=true
+
+if(!autentifikovan)
+{
+    return <Login />
+}
+
 return <>
 {autentifikovan?<Login/>:<Box>Radi</Box>}
 
