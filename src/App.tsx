@@ -1,17 +1,18 @@
-import { useState } from 'react'
-
 import './App.css'
+import { AuthProvider } from './providers/authContext'
 import Skeleton from './skeleton/skeleton'
+
 
 
 function App() {
   
 
   return (
-    <>
-    <Skeleton/>
-        
-    </>
+  <AuthProvider>
+    <Skeleton/> 
+  </AuthProvider>
+    
+
   )
 }
 
