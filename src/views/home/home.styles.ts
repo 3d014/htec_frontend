@@ -1,4 +1,4 @@
-import { SxProps } from "@mui/material"
+
 
 interface homeStyles{
     

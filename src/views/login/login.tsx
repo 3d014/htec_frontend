@@ -3,12 +3,21 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LockIcon from '@mui/icons-material/Lock';
 import styles from "./login.styles"
 import { ChangeEvent, useState } from "react";
+
+import axiosInstance from "../../api/axiosInstance";
+import { useNavigate } from "react-router-dom";
+
+import useAuth from "../../hooks/useAuth";
+import { AuthState } from "../../models/authorization";
 const Login=()=>{
-   
+    const navigate = useNavigate();
+    
     const isMatch= useMediaQuery('(min-width:600px)')
     const [email,setEmail]=useState<string>('')
     const [password,setPassword]=useState<string>('')
+    const { setAuth } = useAuth();
 
+ 
 
     const handleEmailChange=(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>)=>{
         e.preventDefault()
@@ -20,6 +29,41 @@ const Login=()=>{
         e.preventDefault()
         setPassword(e.target.value)
     }
+
+    const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+
+        e.preventDefault();
+        try {
+            const response = await axiosInstance.post('/api/login', {
+                email:email,
+                sifra: password // sifra je naziv atributa na serveru
+            });
+
+            if (response.data.success) {
+              
+               const token = response.data.token;
+               localStorage.setItem("token", token);
+
+                
+                setAuth((prevAuth: AuthState) => ({
+                    ...prevAuth,
+                    email:email,
+                    accessToken:token,
+                    
+                  }));
+            
+                navigate('/home');
+                
+            } else {
+             
+                console.error(response.data.msg);
+            }
+        } catch (error) {
+           
+            console.error('Error occured during login:', error);
+        }
+    }
+
     return <>
     <Box style={isMatch?styles.largerScreen.headerRectangle:styles.smallerScreen.headerRectangle}> </Box>
     <Box style={isMatch?styles.largerScreen.headerTriangle:styles.smallerScreen.headerTriangle}></Box>
@@ -60,7 +104,7 @@ const Login=()=>{
                 <Button variant="text" style={isMatch?styles.largerScreen.forgotPasswordButton:styles.smallerScreen.forgotPasswordButton}>Forgot password?</Button>
             </Box>
 
-            <Button variant="contained" style={isMatch?styles.largerScreen.loginButton:styles.smallerScreen.loginButton}>Login</Button>
+            <Button variant="contained" onClick={handleSubmit} style={isMatch?styles.largerScreen.loginButton:styles.smallerScreen.loginButton} >Login</Button>
             
         </Box>
     </Box>
