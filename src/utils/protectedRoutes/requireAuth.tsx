@@ -12,12 +12,16 @@ interface RequireAuthProps {
 const RequireAuth: React.FC<RequireAuthProps> = ({ allowedRoles })=> {
     
     const location = useLocation();
+    const token=localStorage.getItem('token')
+    let userEmail = "";
+    let roles: string[] = [];
 
-    const decoded: any = jwtDecode(localStorage.getItem("token") || "");
-
-    const userEmail: string = decoded?.email || "";
-    const roles=decoded?.roles||[]
-    console.log(roles)
+    if (token) {
+        const decoded: any = jwtDecode(token);
+        userEmail = decoded?.email || "";
+        roles = decoded?.roles || [];
+        console.log(roles);
+    }
 
     return (
         roles.find((role: string) => allowedRoles?.includes(role)) ? <Outlet /> :
