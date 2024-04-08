@@ -10,7 +10,7 @@ import ResetPassword from "../views/reset_password/resetpassword"
 import Test from "../views/test"
 import { AnonymousRoute } from "../utils/anonymousRoutes/anonymousRoues"
 
-
+// test commit
 
 
 const Skeleton=()=>{
@@ -34,7 +34,7 @@ return <Layout>
           <Route path="/*" element={<Home/>} />
     </Route> 
     
-
+    
     
 
 
