@@ -26,7 +26,7 @@ const ForgetPassword = () => {
       if (response.data.success) {
         setSnackbarMessage("Email sent successfully.");
         setSnackbarOpen(true);
-        navigate('/login'); // Preusmjerite korisnika na stranicu za prijavu nakon što pošaljete zahtjev za zaboravljenu lozinku
+        navigate('/email-sent'); // Preusmjerite korisnika na stranicu za prijavu nakon što pošaljete zahtjev za zaboravljenu lozinku
       } else {
         setSnackbarMessage("Failed to send email. Please try again.");
         setSnackbarOpen(true);
