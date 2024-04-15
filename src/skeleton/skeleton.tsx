@@ -1,40 +1,33 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Layout from "./components/layout/layout";
 import RequireAuth from "../utils/protectedRoutes/requireAuth";
-import Home from "../views/home/home";
-import Test from "../views/test/test";
-import Login from "../views/login/login";
-import ForgotPassword from "../views/forgot_password/forgotpassword"
-import ResetPassword from "../views/reset_password/resetpassword"
-import EmailSent from "../views/email_sent/email_sent"
-import { AnonymousRoute } from "../utils/anonymousRoutes/anonymousRoues";
+import { AnonymousRoute } from "../utils/anonymousRoutes/anonymousRoutes";
 
+import RoutesData from "../providers/routeProvider";
 const Skeleton = () => {
   return (
     <BrowserRouter>
       <Routes>
-    {/* Anonimna ruta za /test */}     
-    <Route element={<AnonymousRoute />}>
-      <Route path='/login'  element={ <Login />} />
-      <Route path='/resetpassword'  element={ <ResetPassword />} />
-      <Route path='/forgotpassword'  element={ <ForgotPassword />} />
-      <Route path='email-sent' element= { <EmailSent />} />
-      <Route path='/test' element= { <Test />} />
-    </Route> 
-      
-    <Route path="/test" element={<Test />} />
-        {/* Rute koje zahtijevaju autentikaciju i autorizaciju */}
-      <Route
-          element={<RequireAuth allowedRoles={['admin']} />}
-        >
-          {/* Sve rute koje zahtijevaju autentikaciju i autorizaciju bit će omotane s Layout komponentom */}
-        <Route path="/*" element={<Layout><Home /></Layout>} />
-      </Route>
+        {RoutesData.map((route) => (
+          <Route
+            key={route.id}
+            element={
+              route.private ? <AnonymousRoute></AnonymousRoute>:
+              (
+                route.protected?<RequireAuth allowedRoles={route.roles}></RequireAuth>:null
+              )
+            }
+          >
+            {route.private?<Route path={route.path}  element={route.component} />:
+            (route.protected?<Route path={route.path} element={<Layout>{route.component}</Layout>} />:<Route path={route.path} element={route.component}></Route>)
+            }
+
+            
+          </Route>
+        ))}
       </Routes>
     </BrowserRouter>
   );
 };
 
 export default Skeleton;
-
-

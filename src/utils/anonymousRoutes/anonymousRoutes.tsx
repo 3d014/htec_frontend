@@ -8,7 +8,7 @@ export const AnonymousRoute = () => {
       return null
     }
   
-    return auth.accessToken
-      ? <Navigate to='/test' replace /> 
+    return auth?.accessToken
+      ? <Navigate to='/home' replace /> 
       : <Outlet/>;
   }

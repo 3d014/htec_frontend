@@ -1,32 +1,36 @@
-import React, { ReactNode, createContext, useState} from 'react';
-import { AuthContextType, AuthState } from '../models/authorization';
-import {jwtDecode} from 'jwt-decode';
+import React, { ReactNode, createContext, useState } from "react";
+import { AuthContextType, AuthState } from "../models/authorization";
+import { jwtDecode } from "jwt-decode";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   // Initialize auth state with values from the decoded token, if available
-  const [auth, setAuth] = useState<AuthState>(() => {
-    const token = localStorage.getItem('token');
+  const [auth, setAuth] = useState<AuthState | null>(() => {
+    const token = localStorage.getItem("token");
     if (token) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const decodedToken: any = jwtDecode(token);
+      console.log(decodedToken)
       return {
         email: decodedToken.email || "",
         password: "",
         roles: decodedToken.roles || [],
-        accessToken: token
+        accessToken: token,
       };
+      
     } else {
       return {
         email: "",
         password: "",
         roles: [],
-        accessToken: ""
+        accessToken: "",
       };
     }
   });
 
- 
   return (
     <AuthContext.Provider value={{ auth, setAuth }}>
       {children}
