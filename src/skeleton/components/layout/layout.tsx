@@ -1,4 +1,4 @@
-import { Box, Grid, useMediaQuery } from "@mui/material"
+import { Box, useMediaQuery } from "@mui/material"
 import  { ReactNode, useState } from "react"
 import Header from "./header/header"
 import Navigation from "./navigation/Navigation"

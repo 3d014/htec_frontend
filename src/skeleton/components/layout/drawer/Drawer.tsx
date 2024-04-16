@@ -1,7 +1,7 @@
 import useAuth from "../../../../hooks/useAuth";
 import RoutesData from "../../../../providers/routeProvider";
 import { List, ListItem, ListItemText, Drawer as MuiDrawer } from "@mui/material";
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 interface DrawerProps {
 
     isDrawerOpen: boolean;
@@ -9,7 +9,7 @@ interface DrawerProps {
   }
 const Drawer: React.FC<DrawerProps>  = ({isDrawerOpen,toggleDrawer}) => {
     const {auth}=useAuth()
-    const navigationItems = RoutesData.filter(route => route.isNavigation && route.roles.some(role => auth.roles?.includes(role)));
+    const navigationItems = RoutesData.filter(route => route.isNavigation && route.roles.some(role => auth?.roles?.includes(role)));
     const navigate=useNavigate()
 
     const handleItemClick = (path: string) => {

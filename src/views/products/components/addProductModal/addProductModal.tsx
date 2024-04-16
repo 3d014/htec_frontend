@@ -1,25 +1,33 @@
-import { Box, Button, TextField, Modal } from '@mui/material';
+import { Box, Button, TextField, Modal, useMediaQuery } from '@mui/material';
 import { useState } from 'react';
 import styles from './addProductsModal.styles';
+import { Product } from '../../../../models/product';
 
 
 interface AddProductModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (name: string, price: string, description: string) => void;
+    onSave: (product:Product) => void;
 }
 
 const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSave }) => {
     const [productName, setProductName] = useState('');
-    const [productPrice, setProductPrice] = useState('');
-    const [productDescription, setProductDescription] = useState('');
+    const [productId, setProductId] = useState<number>(parseInt(''));
+    const [productMeasure, setProductMeasure] = useState('');
 
     const handleSaveProduct = () => {
-        onSave(productName, productPrice, productDescription);
+        const product:Product={id:productId,
+            name:productName,
+            measureUnit:productMeasure}
+
+        onSave(product);
+        setProductName('')
+        setProductId(parseInt(''))
+        setProductMeasure('')
         onClose();
     };
 
-    const isSmallScreen = window.innerWidth < 600;
+    const isSmallScreen = useMediaQuery("(max-width:600px)");
 
     return (
         <Modal open={isOpen} onClose={onClose}>
@@ -33,16 +41,18 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSa
                 />
                 <TextField
                     sx={isSmallScreen ? styles.smallerScreen.textField : styles.largerScreen.textField}
-                    label="Price"
-                    value={productPrice}
-                    onChange={(e) => setProductPrice(e.target.value)}
+                    label="Id"
+                    placeholder='Id'
+                    type='number'
+                    value={productId}
+                    onChange={(e) => setProductId(parseInt(e.target.value))}
                     fullWidth
                 />
                 <TextField
                     sx={isSmallScreen ? styles.smallerScreen.textField : styles.largerScreen.textField}
-                    label="Description"
-                    value={productDescription}
-                    onChange={(e) => setProductDescription(e.target.value)}
+                    label="Mjerna jedinica"
+                    value={productMeasure}
+                    onChange={(e) => setProductMeasure(e.target.value)}
                     fullWidth
                 />
                 <Button
