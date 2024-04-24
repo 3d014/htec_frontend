@@ -13,7 +13,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     if (token) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const decodedToken: any = jwtDecode(token);
-      console.log(decodedToken)
+      
       return {
         email: decodedToken.email || "",
         password: "",

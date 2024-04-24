@@ -1,5 +1,5 @@
 export interface Product{
-    id:number,
-    name:string,
-    measureUnit:string,
+    productId?:string,
+    productName:string,
+    measuringUnit:string,
 }

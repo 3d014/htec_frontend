@@ -2,6 +2,7 @@ import { Box, Button, TextField, Modal, useMediaQuery } from '@mui/material';
 import { useState } from 'react';
 import styles from './addProductsModal.styles';
 import { Product } from '../../../../models/product';
+import { toast } from 'react-toastify';
 
 
 interface AddProductModalProps {
@@ -12,17 +13,27 @@ interface AddProductModalProps {
 
 const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSave }) => {
     const [productName, setProductName] = useState('');
-    const [productId, setProductId] = useState<number>(parseInt(''));
+    
     const [productMeasure, setProductMeasure] = useState('');
 
     const handleSaveProduct = () => {
-        const product:Product={id:productId,
-            name:productName,
-            measureUnit:productMeasure}
+      
+        
+      
+        const product:Product={
+
+            productName,
+            measuringUnit:productMeasure}
+
+            if (!product.productName || !product.measuringUnit){
+
+                toast.error('polja ne mogu biti prazna')
+                return
+            }
 
         onSave(product);
         setProductName('')
-        setProductId(parseInt(''))
+        
         setProductMeasure('')
         onClose();
     };
@@ -39,15 +50,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSa
                     onChange={(e) => setProductName(e.target.value)}
                     fullWidth
                 />
-                <TextField
-                    sx={isSmallScreen ? styles.smallerScreen.textField : styles.largerScreen.textField}
-                    label="Id"
-                    placeholder='Id'
-                    type='number'
-                    value={productId}
-                    onChange={(e) => setProductId(parseInt(e.target.value))}
-                    fullWidth
-                />
+                
                 <TextField
                     sx={isSmallScreen ? styles.smallerScreen.textField : styles.largerScreen.textField}
                     label="Mjerna jedinica"
