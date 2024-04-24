@@ -1,11 +1,11 @@
 interface productStyles{
     largerScreen:{
-        body:{},
-        proizvodi:{}
+        body:React.CSSProperties,
+        proizvodi:React.CSSProperties
     },
     smallerScreen:{
-        body:{},
-        proizvodi:{}
+        body:React.CSSProperties,
+        proizvodi:React.CSSProperties
     }
 
 }

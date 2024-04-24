@@ -7,7 +7,7 @@ const Navigation = () => {
     const { auth } = useAuth();
     const navigate = useNavigate();
 
-    const navigationItems = RoutesData.filter(route => route.isNavigation && route.roles.some(role => auth.roles?.includes(role)));
+    const navigationItems = RoutesData.filter(route => route.isNavigation && route.roles.some(role => auth?.roles?.includes(role)));
 
     const handleItemClick = (path: string) => {
         navigate(path);
@@ -26,3 +26,9 @@ const Navigation = () => {
 }
 
 export default Navigation;
+
+
+const niz:string[]=['prvi','drugi','treci']
+
+
+niz.map((element)=>{<div>{element}</div>})

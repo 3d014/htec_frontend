@@ -2,12 +2,13 @@ import Route from "../models/routes";
 import { v4 as uuidv4 } from "uuid";
 import Login from "../views/login/login";
 import Products from "../views/products/products";
-import Test from "../views/test";
+
 import ForgotPassword from "../views/forgot_password/forgotpassword";
 import ResetPassword from "../views/reset_password/resetpassword";
 import NotFoundPage from "../views/not_found/notFoundPage";
 import Home from "../views/home/home";
 import EmailSent from "../views/email_sent/email_sent";
+
 
 const RoutesData: Route[] = [
   {
@@ -40,16 +41,7 @@ const RoutesData: Route[] = [
     isNavigation: true,
     component: <Products />,
   },
-  {
-    routeName: "Test",
-    path: "/test",
-    id: uuidv4(),
-    roles: [],
-    protected: false,
-    private: false,
-    isNavigation: false,
-    component: <Test />,
-  },
+
   {
     routeName: "ForgotPassword",
     path: "/forgotpassword",
@@ -111,6 +103,9 @@ const RoutesData: Route[] = [
     isNavigation: false,
     component: <EmailSent />,
   },
+
+
+
 ];
 
 export default RoutesData;

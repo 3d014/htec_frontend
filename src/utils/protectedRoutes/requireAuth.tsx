@@ -16,7 +16,7 @@ const RequireAuth: React.FC<RequireAuthProps> = ({ allowedRoles }) => {
     const decoded: any = jwtDecode(token);
     userEmail = decoded?.email || "";
     roles = decoded?.roles || [];
-    console.log(roles);
+    
   }
 
   return roles.find((role: string) => allowedRoles?.includes(role)) ? (
