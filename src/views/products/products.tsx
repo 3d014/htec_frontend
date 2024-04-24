@@ -25,7 +25,7 @@ const Products = () => {
     const config: Columns<Product>[] = [
         {   
             getHeader: () => 'Settings',
-            getValue: (product: Product) =><> {deleteFlag? <Button size='small' onClick={()=>{handleDeleteProduct(product)}}><DeleteIcon sx={{color:'#32675B'}}/></Button>:<></>}</>
+            getValue: (product: Product) =><> {deleteFlag? <div style={{width:'50px',height:"20px"}}><Button size='small' onClick={()=>{handleDeleteProduct(product)}}><DeleteIcon sx={{color:'#32675B'}}/></Button></div>:<div style={{width:'50px',height:"20px"}}></div>}</>
         },
        
         { 
