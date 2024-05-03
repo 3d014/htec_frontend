@@ -8,6 +8,7 @@ import ResetPassword from "../views/reset_password/resetpassword";
 import NotFoundPage from "../views/not_found/notFoundPage";
 import Home from "../views/home/home";
 import EmailSent from "../views/email_sent/email_sent";
+import Vendors from "../views/vendors/vendors";
 
 
 const RoutesData: Route[] = [
@@ -40,6 +41,16 @@ const RoutesData: Route[] = [
     private: false,
     isNavigation: true,
     component: <Products />,
+  },
+  {
+    routeName: "Vendors",
+    path: "/vendors",
+    id: uuidv4(),
+    roles: ["admin", "user"],
+    protected: true,
+    private: false,
+    isNavigation: true,
+    component: <Vendors />,
   },
 
   {

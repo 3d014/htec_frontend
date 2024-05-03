@@ -33,8 +33,12 @@ const Products = () => {
             getValue: (product: Product) => product.productName 
         },
         { 
-            getHeader: () => 'Mjerna jedinica', 
+            getHeader: () => 'Unit of measure', 
             getValue: (product: Product) => product.measuringUnit
+        },
+        { 
+            getHeader: () => 'Category', 
+            getValue: (_product: Product) => <>refreshments</>
         }
     ];
 
@@ -44,6 +48,7 @@ const Products = () => {
             await axiosInstance.delete('/api/products',{headers:{Authorization:localStorage.getItem('token')},data:{productId}})
             const filteredProducts:Product[]=products.filter(item=>product.productId!==item.productId)
             setProducts(filteredProducts)
+            setDeleteFlag(!deleteFlag)
         }
         
     }
