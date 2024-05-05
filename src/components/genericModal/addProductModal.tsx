@@ -1,7 +1,7 @@
 import { Box, Button, TextField, Modal, useMediaQuery } from '@mui/material';
 import { useState } from 'react';
 import styles from './addProductsModal.styles';
-import { Product } from '../../../../models/product';
+import { Product } from '../../models/product';
 import { toast } from 'react-toastify';
 
 

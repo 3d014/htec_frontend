@@ -1,15 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Box, Button, useMediaQuery } from '@mui/material'
 import styles from './products.styles'
-import AddProductModal from './components/addProductModal/addProductModal'
+import AddProductModal from '../../components/genericModal/addProductModal'
 import { Columns } from '../../models/columns'
 import GenericTable from '../../components/table/genericTable'
 import { Product } from '../../models/product'
 import axiosInstance from '../../api/axiosInstance'
 import DeleteIcon from '@mui/icons-material/Delete'
-
-
-
 
 
 
@@ -107,6 +104,7 @@ const Products = () => {
         </Box>
       
         <AddProductModal isOpen={isModalOpen} onClose={handleModalClose} onSave={handleSaveProduct} />
+        
         
         </Box>
     );
