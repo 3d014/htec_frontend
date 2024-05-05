@@ -4,7 +4,8 @@ import Vendor from "../../models/vendors";
 import { Columns } from "../../models/columns";
 import DeleteIcon from '@mui/icons-material/Delete'
 import GenericModal from "./modal/genericModal";
-import { useState } from "react";
+import axiosInstance from '../../api/axiosInstance';
+import { useEffect, useState } from 'react'
 
 const Vendors = ()=>{
 
@@ -65,9 +66,47 @@ const [newVendor,setNewVendor]=useState<Vendor>(
         }
     )
 
+ const handleDeleteVendor = async (vendor: Vendor) => {
+        const { identificationNUmber } = vendor; 
+        if (identificationNUmber) {
+            try {
+                await axiosInstance.delete(`/api/vendors/${identificationNUmber}`, {
+                    headers: { Authorization: localStorage.getItem('token') }
+                });
+                const filteredVendors: Vendor[] = vendorData.filter(item => item.identificationNUmber !== identificationNUmber);
+                setVendorData(filteredVendors);
+            } catch (error) {
+                console.error('Error deleting vendor:', error);
+            }
+        }
+    };
 
+    const fetchVendors = async () => {
+        try {
+            const response = await axiosInstance.get('/api/vendors', {
+                headers: { Authorization: localStorage.getItem('token') }
+            });
+            const data: Vendor[] = response.data;
+            setVendorData(data);
+        } catch (error) {
+            console.error('Error fetching vendors:', error);
+        }
+    };
 
+    useEffect(() => {
+        fetchVendors();
+    }, []);
 
+    const handleSaveVendor = async (newVendor: Vendor) => {
+        try {
+            await axiosInstance.post('/api/vendors', newVendor, {
+                headers: { Authorization: localStorage.getItem('token') }
+            });
+            fetchVendors();
+        } catch (error) {
+            console.error('Error saving vendor:', error);
+        }
+    };
 
     
     function handleSubmit() {
