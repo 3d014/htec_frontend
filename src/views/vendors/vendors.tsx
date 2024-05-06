@@ -4,7 +4,8 @@ import Vendor from "../../models/vendors";
 import { Columns } from "../../models/columns";
 import DeleteIcon from '@mui/icons-material/Delete'
 import GenericModal from "./modal/genericModal";
-import { useState } from "react";
+import axiosInstance from '../../api/axiosInstance';
+import { useEffect, useState } from 'react'
 
 const Vendors = ()=>{
 
@@ -12,6 +13,7 @@ const Vendors = ()=>{
     const [vendorData,setVendorData]=useState<Vendor[]>([{name:'test0',
     address:'test1',
     identificationNUmber:'',
+    categories:'',
     PDVNumber:'',
     City:'',
     TelephoneNumber:[],
@@ -57,6 +59,7 @@ const [newVendor,setNewVendor]=useState<Vendor>(
             name:'',
             address:'',
             identificationNUmber:'',
+            categories:'',
             PDVNumber:'',
             City:'',
             TelephoneNumber:[],
@@ -65,9 +68,47 @@ const [newVendor,setNewVendor]=useState<Vendor>(
         }
     )
 
+ const handleDeleteVendor = async (vendor: Vendor) => {
+        const { identificationNUmber } = vendor; 
+        if (identificationNUmber) {
+            try {
+                await axiosInstance.delete(`/api/vendors/${identificationNUmber}`, {
+                    headers: { Authorization: localStorage.getItem('token') }
+                });
+                const filteredVendors: Vendor[] = vendorData.filter(item => item.identificationNUmber !== identificationNUmber);
+                setVendorData(filteredVendors);
+            } catch (error) {
+                console.error('Error deleting vendor:', error);
+            }
+        }
+    };
 
+    const fetchVendors = async () => {
+        try {
+            const response = await axiosInstance.get('/api/vendors', {
+                headers: { Authorization: localStorage.getItem('token') }
+            });
+            const data: Vendor[] = response.data;
+            setVendorData(data);
+        } catch (error) {
+            console.error('Error fetching vendors:', error);
+        }
+    };
 
+    useEffect(() => {
+        fetchVendors();
+    }, []);
 
+    const handleSaveVendor = async (newVendor: Vendor) => {
+        try {
+            await axiosInstance.post('/api/vendors', newVendor, {
+                headers: { Authorization: localStorage.getItem('token') }
+            });
+            fetchVendors();
+        } catch (error) {
+            console.error('Error saving vendor:', error);
+        }
+    };
 
     
     function handleSubmit() {
@@ -78,6 +119,7 @@ const [newVendor,setNewVendor]=useState<Vendor>(
             name: '',
             address: '',
             identificationNUmber: '',
+            categories:'',
             PDVNumber: '',
             City: '',
             TelephoneNumber: [],
@@ -131,6 +173,9 @@ const [newVendor,setNewVendor]=useState<Vendor>(
          onChange={(e)=>{
             console.log(newVendor)
             setNewVendor({...newVendor,identificationNUmber:e.target.value})}}> naxiv</TextField>
+        <TextField label='Category'sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}} value={newVendor.categories}
+         onChange={(e)=>{setNewVendor({...newVendor,categories:e.target.value})}}
+         > naxiv</TextField>
         <TextField label='PDV Number'sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}}
         value={newVendor.PDVNumber}
         onChange={(e)=>{setNewVendor({...newVendor,PDVNumber:e.target.value})}}
@@ -139,10 +184,7 @@ const [newVendor,setNewVendor]=useState<Vendor>(
         value={newVendor.City}
         onChange={(e)=>{setNewVendor({...newVendor,City:e.target.value})}}
         > naxiv</TextField>
-        <TextField label='Telephone'sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}} > naxiv</TextField>
-        
-       
-        
+         
         <TextField label='Email' placeholder="Email" sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}}  
         value={currentEmailValue} onChange={(e)=>{setCurrentEmailValue(e.target.value)}} 
         InputProps={{
