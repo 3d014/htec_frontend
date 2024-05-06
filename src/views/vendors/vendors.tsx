@@ -1,24 +1,25 @@
-import { Autocomplete, Box, Button, Chip, TextField } from "@mui/material"
+import {Box, Button, Chip, TextField } from "@mui/material"
 import GenericTable from "../../components/table/genericTable"
 import Vendor from "../../models/vendors";
 import { Columns } from "../../models/columns";
 import DeleteIcon from '@mui/icons-material/Delete'
-import GenericModal from "./modal/genericModal";
+import GenericModal from "../../components/modal/genericModal";
 import axiosInstance from '../../api/axiosInstance';
 import { useEffect, useState } from 'react'
 
 const Vendors = ()=>{
 
    
-    const [vendorData,setVendorData]=useState<Vendor[]>([{name:'test0',
-    address:'test1',
-    identificationNUmber:'',
-    categories:'',
-    PDVNumber:'',
-    City:'',
-    TelephoneNumber:[],
-    email:[],
-    TransactionNumber:['test2','test3']}])
+    const [vendorData,setVendorData]=useState<Vendor[]>([{
+    vendorName:'',
+    vendorAddress:'',
+    vendorIdentificationNUmber:'',
+    vendorCategory:'',
+    vendorPDVNumber:'',
+    vendorCity:'',
+    vendorTelephoneNumber:[],
+    vendorEmail:[],
+    vendorTransactionNumber:[]}])
     const deleteFlag=false
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -27,7 +28,8 @@ const Vendors = ()=>{
 
 
     function handleAddEmail(newEmail:string){
-        if(newEmail) setNewVendor((prevVendor) => ({ ...prevVendor, email: [...prevVendor.email, newEmail] }))
+      
+        if(newEmail) setNewVendor((prevVendor) => ({ ...prevVendor, vendorEmail: [...prevVendor.vendorEmail, newEmail] }))
      
     }
     const handleModalClose = () => {
@@ -42,7 +44,7 @@ const Vendors = ()=>{
     const [currentPhoneNumber, setCurrentPhoneNumber] = useState<string>("");
   
     function handleAddPhoneNumber(newTelephoneNumber: string) {
-        if(newTelephoneNumber) setNewVendor((prevVendor) => ({ ...prevVendor, TelephoneNumber: [...prevVendor.TelephoneNumber, newTelephoneNumber] }))
+        if(newTelephoneNumber) setNewVendor((prevVendor) => ({ ...prevVendor, vendorTelephoneNumber: [...prevVendor.vendorTelephoneNumber, newTelephoneNumber] }))
     }
 
 
@@ -50,32 +52,32 @@ const Vendors = ()=>{
     const [currentTransactionNumber, setCurrentTransactionNumber] = useState<string>("");
 
 function handleAddTransactionNumber(newTransactionNumber: string) {
-    if(newTransactionNumber) setNewVendor((prevVendor) => ({ ...prevVendor, TransactionNumber: [...prevVendor.TransactionNumber, newTransactionNumber] }))
+    if(newTransactionNumber) setNewVendor((prevVendor) => ({ ...prevVendor, vendorTransactionNumber: [...prevVendor.vendorTransactionNumber, newTransactionNumber] }))
 }
 
 
 const [newVendor,setNewVendor]=useState<Vendor>(
         {
-            name:'',
-            address:'',
-            identificationNUmber:'',
-            categories:'',
-            PDVNumber:'',
-            City:'',
-            TelephoneNumber:[],
-            email:[],
-            TransactionNumber:[]
+            vendorName:'',
+            vendorAddress:'',
+            vendorIdentificationNUmber:'',
+            vendorCategory:'',
+            vendorPDVNumber:'',
+            vendorCity:'',
+            vendorTelephoneNumber:[],
+            vendorEmail:[],
+            vendorTransactionNumber:[]
         }
     )
 
  const handleDeleteVendor = async (vendor: Vendor) => {
-        const { identificationNUmber } = vendor; 
-        if (identificationNUmber) {
+        const { vendorIdentificationNUmber } = vendor; 
+        if (vendorIdentificationNUmber) {
             try {
-                await axiosInstance.delete(`/api/vendors/${identificationNUmber}`, {
+                await axiosInstance.delete(`/api/vendors/${vendorIdentificationNUmber}`, {
                     headers: { Authorization: localStorage.getItem('token') }
                 });
-                const filteredVendors: Vendor[] = vendorData.filter(item => item.identificationNUmber !== identificationNUmber);
+                const filteredVendors: Vendor[] = vendorData.filter(item => item.vendorIdentificationNUmber !== vendorIdentificationNUmber);
                 setVendorData(filteredVendors);
             } catch (error) {
                 console.error('Error deleting vendor:', error);
@@ -97,6 +99,7 @@ const [newVendor,setNewVendor]=useState<Vendor>(
 
     useEffect(() => {
         fetchVendors();
+      
     }, []);
 
     const handleSaveVendor = async (newVendor: Vendor) => {
@@ -108,28 +111,25 @@ const [newVendor,setNewVendor]=useState<Vendor>(
         } catch (error) {
             console.error('Error saving vendor:', error);
         }
-    };
-
-    
-    function handleSubmit() {
-       
-        setVendorData(prevData => [...prevData, newVendor]);
-  
         setNewVendor({
-            name: '',
-            address: '',
-            identificationNUmber: '',
-            categories:'',
-            PDVNumber: '',
-            City: '',
-            TelephoneNumber: [],
-            email: [],
-            TransactionNumber: []
+            vendorName: '',
+            vendorAddress: '',
+            vendorIdentificationNUmber: '',
+            vendorCategory:'',
+            vendorPDVNumber: '',
+            vendorCity: '',
+            vendorTelephoneNumber: [],
+            vendorEmail: [],
+            vendorTransactionNumber: []
         });
         setCurrentEmailValue('')
         setCurrentPhoneNumber('')
         setCurrentTransactionNumber('')
-    }
+        setIsModalOpen(!isModalOpen)
+    };
+
+    
+
     const config: Columns<Vendor>[] = [
         {   
             getHeader: () => 'Settings',
@@ -138,15 +138,18 @@ const [newVendor,setNewVendor]=useState<Vendor>(
        
         { 
             getHeader: () => 'Name', 
-            getValue: (Vendor: Vendor) => Vendor.name
+            getValue: (Vendor: Vendor) => Vendor.vendorName
         },
         {
             getHeader:()=>'Transaction number',
-            getValue:(Vendor:Vendor)=>Vendor.TransactionNumber[0]
+            getValue:(Vendor:Vendor)=>Vendor.vendorTransactionNumber[0]        },
+        {
+          getHeader:()=>'Email',
+          getValue:(Vendor:Vendor)=>Vendor.vendorEmail[0]
         },
         {
             getHeader:()=>'Address',
-            getValue:(Vendor:Vendor)=>Vendor.address
+            getValue:(Vendor:Vendor)=>Vendor.vendorAddress
         }
         
 
@@ -162,28 +165,29 @@ const [newVendor,setNewVendor]=useState<Vendor>(
     </Box>
     <GenericModal isOpen={isModalOpen} onClose={handleModalClose} >
      
-    <TextField label='Name'sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}} value={newVendor.name}
-         onChange={(e)=>{setNewVendor({...newVendor,name:e.target.value})}}
-         > naxiv</TextField>
+    <TextField label='Name'sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}} value={newVendor.vendorName}
+         onChange={(e)=>{setNewVendor({...newVendor,vendorName:e.target.value})}}
+         ></TextField>
 
-        <TextField label='Address'sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}} value={newVendor.address}
-         onChange={(e)=>{setNewVendor({...newVendor,address:e.target.value})}}
-         > naxiv</TextField>
-        <TextField label='Identification number'sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}} value={newVendor.identificationNUmber}
+        <TextField label='Address'sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}} value={newVendor.vendorAddress}
+         onChange={(e)=>{setNewVendor({...newVendor,vendorAddress:e.target.value})}}
+         ></TextField>
+        <TextField label='Identification number'sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}} value={newVendor.vendorIdentificationNUmber}
          onChange={(e)=>{
             console.log(newVendor)
-            setNewVendor({...newVendor,identificationNUmber:e.target.value})}}> naxiv</TextField>
-        <TextField label='Category'sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}} value={newVendor.categories}
-         onChange={(e)=>{setNewVendor({...newVendor,categories:e.target.value})}}
-         > naxiv</TextField>
-        <TextField label='PDV Number'sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}}
-        value={newVendor.PDVNumber}
-        onChange={(e)=>{setNewVendor({...newVendor,PDVNumber:e.target.value})}}
-        > naxiv</TextField>
+            setNewVendor({...newVendor,vendorIdentificationNUmber:e.target.value})}}> naxiv</TextField>
+        <TextField label='Category'sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}} value={newVendor.vendorCategory}
+         onChange={(e)=>{setNewVendor({...newVendor,vendorCategory:e.target.value})}}
+         ></TextField>
+        <TextField label='PDV Number'sx=
+        {{ backgroundColor:'white',color: '#32675B',margin: '5px'}}
+        value={newVendor.vendorPDVNumber}
+        onChange={(e)=>{setNewVendor({...newVendor,vendorPDVNumber:e.target.value})}}
+        ></TextField>
         <TextField label='City'sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}}
-        value={newVendor.City}
-        onChange={(e)=>{setNewVendor({...newVendor,City:e.target.value})}}
-        > naxiv</TextField>
+        value={newVendor.vendorCity}
+        onChange={(e)=>{setNewVendor({...newVendor,vendorCity:e.target.value})}}
+        ></TextField>
          
         <TextField label='Email' placeholder="Email" sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}}  
         value={currentEmailValue} onChange={(e)=>{setCurrentEmailValue(e.target.value)}} 
@@ -199,13 +203,13 @@ const [newVendor,setNewVendor]=useState<Vendor>(
                 add
             </Button>,
             startAdornment:(<>
-            {newVendor.email.slice(0, 1).map(item=><Chip key={item}
+            {newVendor.vendorEmail.slice(0, 1).map(item=><Chip key={item}
                 tabIndex={-1}
                 label={item}>
 
                 </Chip>
             )}
-            {newVendor.email.length > 1 && <Chip label={`+${newVendor.email.length - 1}`} />}
+            {newVendor.vendorEmail.length > 1 && <Chip label={`+${newVendor.vendorEmail.length - 1}`} />}
             </>),
 
             
@@ -234,10 +238,10 @@ const [newVendor,setNewVendor]=useState<Vendor>(
               ),
               startAdornment: (
                 <>
-                  {newVendor.TelephoneNumber.slice(0, 1).map((item) => (
+                  {newVendor.vendorTelephoneNumber.slice(0, 1).map((item) => (
                     <Chip key={item} tabIndex={-1} label={item} />
                   ))}
-                  {newVendor.TelephoneNumber.length > 1 && <Chip label={`+${newVendor.TelephoneNumber.length - 1}`} />}
+                  {newVendor.vendorTelephoneNumber.length > 1 && <Chip label={`+${newVendor.vendorTelephoneNumber.length - 1}`} />}
                 </>
               ),
             }}
@@ -261,15 +265,15 @@ const [newVendor,setNewVendor]=useState<Vendor>(
     ),
     startAdornment: (
       <>
-        {newVendor.TransactionNumber.slice(0, 1).map((item) => (
+        {newVendor.vendorTransactionNumber?.slice(0, 1).map((item) => (
           <Chip key={item} tabIndex={-1} label={item} />
         ))}
-        {newVendor.TransactionNumber.length > 1 && <Chip label={`+${newVendor.TransactionNumber.length - 1}`} />}
+        {newVendor.vendorTransactionNumber.length > 1 && <Chip label={`+${newVendor.vendorTransactionNumber.length - 1}`} />}
       </>
     ),
   }}
 />
-            <Button onClick={handleSubmit}>Submit</Button>
+            <Button onClick={()=>{handleSaveVendor(newVendor)}}>Submit</Button>
 
     </GenericModal>
  </Box>   
