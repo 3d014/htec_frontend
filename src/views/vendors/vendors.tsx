@@ -13,6 +13,7 @@ const Vendors = ()=>{
     const [vendorData,setVendorData]=useState<Vendor[]>([{name:'test0',
     address:'test1',
     identificationNUmber:'',
+    categories:'',
     PDVNumber:'',
     City:'',
     TelephoneNumber:[],
@@ -58,6 +59,7 @@ const [newVendor,setNewVendor]=useState<Vendor>(
             name:'',
             address:'',
             identificationNUmber:'',
+            categories:'',
             PDVNumber:'',
             City:'',
             TelephoneNumber:[],
@@ -117,6 +119,7 @@ const [newVendor,setNewVendor]=useState<Vendor>(
             name: '',
             address: '',
             identificationNUmber: '',
+            categories:'',
             PDVNumber: '',
             City: '',
             TelephoneNumber: [],
@@ -170,6 +173,9 @@ const [newVendor,setNewVendor]=useState<Vendor>(
          onChange={(e)=>{
             console.log(newVendor)
             setNewVendor({...newVendor,identificationNUmber:e.target.value})}}> naxiv</TextField>
+        <TextField label='Category'sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}} value={newVendor.categories}
+         onChange={(e)=>{setNewVendor({...newVendor,categories:e.target.value})}}
+         > naxiv</TextField>
         <TextField label='PDV Number'sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}}
         value={newVendor.PDVNumber}
         onChange={(e)=>{setNewVendor({...newVendor,PDVNumber:e.target.value})}}
@@ -178,10 +184,7 @@ const [newVendor,setNewVendor]=useState<Vendor>(
         value={newVendor.City}
         onChange={(e)=>{setNewVendor({...newVendor,City:e.target.value})}}
         > naxiv</TextField>
-        <TextField label='Telephone'sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}} > naxiv</TextField>
-        
-       
-        
+         
         <TextField label='Email' placeholder="Email" sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}}  
         value={currentEmailValue} onChange={(e)=>{setCurrentEmailValue(e.target.value)}} 
         InputProps={{
