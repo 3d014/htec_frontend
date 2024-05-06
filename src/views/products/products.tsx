@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Box, Button, useMediaQuery } from '@mui/material'
 import styles from './products.styles'
-import AddProductModal from '../../components/genericModal/addProductModal'
+import AddProductModal from '../../components/productsModal/addProductModal'
 import { Columns } from '../../models/columns'
 import GenericTable from '../../components/table/genericTable'
 import { Product } from '../../models/product'
@@ -54,7 +54,7 @@ const Products = () => {
             const response = await axiosInstance.get('/api/products',{headers:{Authorization:localStorage.getItem('token')}})
             
             const data: Product[] = response.data;
-            console.log('products',data)
+            
             setProducts(data);
            
             

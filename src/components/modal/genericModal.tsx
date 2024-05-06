@@ -1,5 +1,5 @@
 import { Box, Dialog, useMediaQuery } from "@mui/material"
-import { useState } from "react"
+
 import styles from "./modal.styles"
 
 

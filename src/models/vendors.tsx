@@ -1,13 +1,13 @@
  interface Vendor {
-    name:string,
-    address:string,
-    identificationNUmber:string,
-    PDVNumber:string,
-    categories:string,
-    City:string,
-    TelephoneNumber:string[]
-    email:string[],
-    TransactionNumber:string[]
+    vendorName:string,
+    vendorAddress:string,
+    vendorIdentificationNUmber:string,
+    vendorPDVNumber:string,
+    vendorCategory:string,
+    vendorCity:string,
+    vendorTelephoneNumber:string[]
+    vendorEmail:string[],
+    vendorTransactionNumber:string[]
 }
 
 export default Vendor
