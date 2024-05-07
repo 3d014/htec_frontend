@@ -9,6 +9,7 @@ import NotFoundPage from "../views/not_found/notFoundPage";
 import Home from "../views/home/home";
 import EmailSent from "../views/email_sent/email_sent";
 import Vendors from "../views/vendors/vendors";
+import Categories from "../views/categories/categories";
 
 
 const RoutesData: Route[] = [
@@ -51,6 +52,16 @@ const RoutesData: Route[] = [
     private: false,
     isNavigation: true,
     component: <Vendors />,
+  },
+  {
+    routeName: "Category",
+    path: "/category",
+    id: uuidv4(),
+    roles: ["admin", "user"],
+    protected: true,
+    private: false,
+    isNavigation: true,
+    component: <Categories />,
   },
 
   {
