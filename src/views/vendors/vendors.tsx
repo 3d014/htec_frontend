@@ -20,12 +20,11 @@ const Vendors = ()=>{
     vendorTelephoneNumber:[],
     vendorEmail:[],
     vendorTransactionNumber:[]}])
-    const deleteFlag=false
-
+    //const deleteFlag=false
+    const [deleteFlag,setDeleteFlag]=useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const [currentEmailValue,setCurrentEmailValue]=useState<string>('')
-
 
     function handleAddEmail(newEmail:string){
       
@@ -74,7 +73,7 @@ const [newVendor,setNewVendor]=useState<Vendor>(
         const { vendorIdentificationNUmber } = vendor; 
         if (vendorIdentificationNUmber) {
             try {
-                await axiosInstance.delete(`/api/vendors/${vendorIdentificationNUmber}`, {
+                await axiosInstance.delete(`/api/vendor/${vendorIdentificationNUmber}`, {
                     headers: { Authorization: localStorage.getItem('token') }
                 });
                 const filteredVendors: Vendor[] = vendorData.filter(item => item.vendorIdentificationNUmber !== vendorIdentificationNUmber);
@@ -87,7 +86,7 @@ const [newVendor,setNewVendor]=useState<Vendor>(
 
     const fetchVendors = async () => {
         try {
-            const response = await axiosInstance.get('/api/vendors', {
+            const response = await axiosInstance.get('/api/vendor', {
                 headers: { Authorization: localStorage.getItem('token') }
             });
             const data: Vendor[] = response.data;
@@ -104,7 +103,7 @@ const [newVendor,setNewVendor]=useState<Vendor>(
 
     const handleSaveVendor = async (newVendor: Vendor) => {
         try {
-            await axiosInstance.post('/api/vendors', newVendor, {
+            await axiosInstance.post('/api/vendor', newVendor, {
                 headers: { Authorization: localStorage.getItem('token') }
             });
             fetchVendors();
@@ -133,7 +132,7 @@ const [newVendor,setNewVendor]=useState<Vendor>(
     const config: Columns<Vendor>[] = [
         {   
             getHeader: () => 'Settings',
-            getValue: (_vendor: Vendor) =><> {deleteFlag? <div style={{width:'50px',height:"20px"}}><Button size='small' onClick={()=>{console.log('')}}><DeleteIcon sx={{color:'#32675B'}}/></Button></div>:<div style={{width:'50px',height:"20px"}}></div>}</>
+            getValue: (vendor: Vendor) =><> {deleteFlag? <div style={{width:'50px',height:"20px"}}><Button size='small' onClick={()=>{handleDeleteVendor(vendor)}}><DeleteIcon sx={{color:'#32675B'}}/></Button></div>:<div style={{width:'50px',height:"20px"}}></div>}</>
         },
        
         { 
@@ -161,7 +160,7 @@ const [newVendor,setNewVendor]=useState<Vendor>(
 
     <Box sx={{  marginTop: '20px' }}>
                     <Button variant="contained"  style={{ marginLeft: '10px',backgroundColor:"#32675B" }} onClick={handleAddVendor}>Add Vendor</Button>
-                    <Button variant="contained" color="secondary" style={{ marginLeft: '10px',backgroundColor:"#32675B" }} onClick={()=>{}}>Delete Vendor</Button>
+                    <Button variant="contained" color="secondary" style={{ marginLeft: '10px',backgroundColor:"#32675B" }} onClick={()=>{setDeleteFlag(!deleteFlag)}}>Delete Vendor</Button>
     </Box>
     <GenericModal isOpen={isModalOpen} onClose={handleModalClose} >
      
