@@ -7,6 +7,7 @@ import GenericTable from '../../components/table/genericTable'
 import { Product } from '../../models/product'
 import axiosInstance from '../../api/axiosInstance'
 import DeleteIcon from '@mui/icons-material/Delete'
+import Category from '../../models/category'
 
 
 
@@ -18,6 +19,10 @@ const Products = () => {
     const isMatch= useMediaQuery('(min-width:600px)')
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [deleteFlag,setDeleteFlag]=useState(false)
+    const [categoriesData,setCategoriesData]=useState<Category[]>([{
+        categoryId:'',
+        categoryName:''
+    }])
 
     const config: Columns<Product>[] = [
         {   
@@ -35,9 +40,13 @@ const Products = () => {
         },
         { 
             getHeader: () => 'Category', 
-            getValue: (_product: Product) => <>refreshments</>
+            getValue: (product: Product) => categoriesData.map(category=>{
+                if(product.categoryId==category.categoryId) return category.categoryName
+            })
         }
     ];
+
+    
 
     const handleDeleteProduct=async (product:Product)=>{
         const {productId}=product
@@ -63,10 +72,22 @@ const Products = () => {
         }
     };
 
+    const fetchCategories=async ()=>{
+        try{
+            const response=await axiosInstance.get('/api/categories',{
+                headers:{Authorization:localStorage.getItem('token')}
+            })
+            const data:Category[]=response.data
+            setCategoriesData(data)
+        } catch(error){
+            console.error('Error fetching categories',error)
+        }
+    }
 
     useEffect(() => {
 
         fetchData()
+        fetchCategories()
         
     }, []);
     const handleAddProduct = () => {

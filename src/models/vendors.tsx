@@ -1,9 +1,9 @@
  interface Vendor {
     vendorName:string,
     vendorAddress:string,
-    vendorIdentificationNUmber:string,
+    vendorIdentificationNumber:string,
     vendorPDVNumber:string,
-    vendorCategory:string,
+    vendorCategoryId:string,
     vendorCity:string,
     vendorTelephoneNumber:string[]
     vendorEmail:string[],

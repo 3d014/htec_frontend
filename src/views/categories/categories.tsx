@@ -1,4 +1,4 @@
-import { Box, Button, Grid, useMediaQuery } from "@mui/material"
+import { Box, Button, Grid, TextField, useMediaQuery } from "@mui/material"
 import Category from "../../models/category"
 import { useEffect, useState } from "react"
 import axiosInstance from "../../api/axiosInstance"
@@ -16,6 +16,11 @@ const Categories=()=>{
         categoryName:''
     }])
 
+    const [newCategory,setNewCategory]=useState<Category>({
+        categoryName:'',
+        categoryId:''
+    })
+
     const handleModalClose = () => {
         setIsModalOpen(false);
     };
@@ -32,7 +37,26 @@ const Categories=()=>{
             console.error('Error fetching categories',error)
         }
     }
+    const handleSubmitCategory=async ()=>{
+        try {
+            await axiosInstance.post('/api/categories', newCategory, {
+                headers: { Authorization: localStorage.getItem('token') }
+            });
+            fetchCategories();
+            
+        } catch (error) {
+            console.error('Error saving vendor:', error);
+        }
+        setNewCategory({
+            categoryName:'',
+            categoryId:''
+        })
+        setIsModalOpen(false)
+        
+    };
 
+    
+    
     
     useEffect(()=>{
         fetchCategories()
@@ -60,7 +84,14 @@ const Categories=()=>{
         </Box>
 
         <GenericModal isOpen={isModalOpen} onClose={handleModalClose}>
-            <div></div>
+            <h3>Add Category name</h3>
+            <TextField label="Category Name" sx={{backgroundColor:'white',color: '#32675B',margin: '5px'}} value={newCategory.categoryName} onChange={(e)=>{
+                let tempCategory:Category={
+                    categoryId:'',
+                    categoryName:e.target.value
+                }
+                setNewCategory(tempCategory)}} />
+            <Button variant='contained' sx={{backgroundColor:"#32675B",":hover":{backgroundColor:'#32675B'}}} onClick={handleSubmitCategory}>Submit</Button>
         </GenericModal>
 
 
