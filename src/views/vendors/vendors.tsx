@@ -1,4 +1,4 @@
-import {Box, Button, Chip, TextField } from "@mui/material"
+import {Autocomplete, Box, Button, Chip, TextField } from "@mui/material"
 import GenericTable from "../../components/table/genericTable"
 import Vendor from "../../models/vendors";
 import { Columns } from "../../models/columns";
@@ -7,20 +7,14 @@ import GenericModal from "../../components/modal/genericModal";
 import axiosInstance from '../../api/axiosInstance';
 import { useEffect, useState } from 'react'
 
+import Category from "../../models/category";
+
 const Vendors = ()=>{
 
    
-    const [vendorData,setVendorData]=useState<Vendor[]>([{
-    vendorName:'',
-    vendorAddress:'',
-    vendorIdentificationNUmber:'',
-    vendorCategory:'',
-    vendorPDVNumber:'',
-    vendorCity:'',
-    vendorTelephoneNumber:[],
-    vendorEmail:[],
-    vendorTransactionNumber:[]}])
-    //const deleteFlag=false
+    const [vendorData,setVendorData]=useState<Vendor[]>([])
+    const [ categoryData,setCategoryData]=useState<Category[]>([])
+    const [selectedCategory,setSelectedCategory]=useState<Category>()
     const [deleteFlag,setDeleteFlag]=useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -47,6 +41,7 @@ const Vendors = ()=>{
     }
 
 
+
     
     const [currentTransactionNumber, setCurrentTransactionNumber] = useState<string>("");
 
@@ -59,8 +54,8 @@ const [newVendor,setNewVendor]=useState<Vendor>(
         {
             vendorName:'',
             vendorAddress:'',
-            vendorIdentificationNUmber:'',
-            vendorCategory:'',
+            vendorIdentificationNumber:'',
+            vendorCategoryId:'',
             vendorPDVNumber:'',
             vendorCity:'',
             vendorTelephoneNumber:[],
@@ -69,14 +64,22 @@ const [newVendor,setNewVendor]=useState<Vendor>(
         }
     )
 
+ const handleSelectedCategory=(category:Category)=>{
+  setSelectedCategory(category)
+  setNewVendor((prevVendor) => ({
+    ...prevVendor, // Spread previous state to retain existing properties
+    vendorCategoryId: category.categoryId // Update vendorCategoryId
+  }));
+ }
+
  const handleDeleteVendor = async (vendor: Vendor) => {
-        const { vendorIdentificationNUmber } = vendor; 
-        if (vendorIdentificationNUmber) {
+        const { vendorIdentificationNumber } = vendor; 
+        if (vendorIdentificationNumber) {
             try {
-                await axiosInstance.delete(`/api/vendor/${vendorIdentificationNUmber}`, {
+                await axiosInstance.delete(`/api/vendor/${vendorIdentificationNumber}`, {
                     headers: { Authorization: localStorage.getItem('token') }
                 });
-                const filteredVendors: Vendor[] = vendorData.filter(item => item.vendorIdentificationNUmber !== vendorIdentificationNUmber);
+                const filteredVendors: Vendor[] = vendorData.filter(item => item.vendorIdentificationNumber !== vendorIdentificationNumber);
                 setVendorData(filteredVendors);
             } catch (error) {
                 console.error('Error deleting vendor:', error);
@@ -86,7 +89,7 @@ const [newVendor,setNewVendor]=useState<Vendor>(
 
     const fetchVendors = async () => {
         try {
-            const response = await axiosInstance.get('/api/vendor', {
+            const response = await axiosInstance.get('/api/vendors', {
                 headers: { Authorization: localStorage.getItem('token') }
             });
             const data: Vendor[] = response.data;
@@ -96,14 +99,24 @@ const [newVendor,setNewVendor]=useState<Vendor>(
         }
     };
 
+    const fetchCategories=async()=>{
+      try{
+        const response = await axiosInstance.get('/api/categories',{headers:{Authorization:localStorage.getItem('token')}})
+        const data:Category[]=response.data
+        setCategoryData(data)
+      }catch(error){
+        console.error('Error fetching categories:',error)
+      }
+    }
+
     useEffect(() => {
         fetchVendors();
-      
+        fetchCategories()
     }, []);
 
     const handleSaveVendor = async (newVendor: Vendor) => {
         try {
-            await axiosInstance.post('/api/vendor', newVendor, {
+            await axiosInstance.post('/api/vendors', newVendor, {
                 headers: { Authorization: localStorage.getItem('token') }
             });
             fetchVendors();
@@ -113,8 +126,8 @@ const [newVendor,setNewVendor]=useState<Vendor>(
         setNewVendor({
             vendorName: '',
             vendorAddress: '',
-            vendorIdentificationNUmber: '',
-            vendorCategory:'',
+            vendorIdentificationNumber: '',
+            vendorCategoryId:'',
             vendorPDVNumber: '',
             vendorCity: '',
             vendorTelephoneNumber: [],
@@ -149,7 +162,16 @@ const [newVendor,setNewVendor]=useState<Vendor>(
         {
             getHeader:()=>'Address',
             getValue:(Vendor:Vendor)=>Vendor.vendorAddress
+        },
+        {
+          getHeader:()=>'Category',
+          getValue:(Vendor:Vendor)=>{
+           return categoryData.map(category=>{
+              if (Vendor.vendorCategoryId==category.categoryId) return category.categoryName
+            })
+          }
         }
+        
         
 
     ];
@@ -171,13 +193,11 @@ const [newVendor,setNewVendor]=useState<Vendor>(
         <TextField label='Address'sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}} value={newVendor.vendorAddress}
          onChange={(e)=>{setNewVendor({...newVendor,vendorAddress:e.target.value})}}
          ></TextField>
-        <TextField label='Identification number'sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}} value={newVendor.vendorIdentificationNUmber}
+        <TextField label='Identification number'sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}} value={newVendor.vendorIdentificationNumber}
          onChange={(e)=>{
             console.log(newVendor)
-            setNewVendor({...newVendor,vendorIdentificationNUmber:e.target.value})}}> naxiv</TextField>
-        <TextField label='Category'sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}} value={newVendor.vendorCategory}
-         onChange={(e)=>{setNewVendor({...newVendor,vendorCategory:e.target.value})}}
-         ></TextField>
+            setNewVendor({...newVendor,vendorIdentificationNumber:e.target.value})}}> naxiv</TextField>
+       
         <TextField label='PDV Number'sx=
         {{ backgroundColor:'white',color: '#32675B',margin: '5px'}}
         value={newVendor.vendorPDVNumber}
@@ -245,7 +265,7 @@ const [newVendor,setNewVendor]=useState<Vendor>(
               ),
             }}
           />
-        <TextField
+  <TextField
   label="Transaction Number"
   placeholder="Transaction Number"
   sx={{ backgroundColor: "white", color: "#32675B", margin: "5px" }}
@@ -272,6 +292,18 @@ const [newVendor,setNewVendor]=useState<Vendor>(
     ),
   }}
 />
+
+<Autocomplete
+  options={categoryData||null}
+  value={selectedCategory||null}
+  onChange={(_e, newValue) => {
+    if (newValue) handleSelectedCategory(newValue);
+  }}
+  getOptionLabel={(option) => option.categoryName}
+  renderInput={(params) => <TextField {...params} label="Category" />}
+/>
+
+  
             <Button onClick={()=>{handleSaveVendor(newVendor)}}>Submit</Button>
 
     </GenericModal>
