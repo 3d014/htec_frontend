@@ -4,7 +4,8 @@ import styles from './addProductsModal.styles';
 import { Product } from '../../models/product';
 import { toast } from 'react-toastify';
 import Category from '../../models/category';
-import axiosInstance from '../../api/axiosInstance';
+
+import fetchCategories from '../../utils/fetchFunctions/fetchCategories';
 
 
 interface AddProductModalProps {
@@ -48,21 +49,11 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSa
 
 
     useEffect(()=>{
-        fetchCategories()
+        fetchCategories(setCategoriesData)
     },[])
     
 
-    const fetchCategories=async ()=>{
-        try{
-            const response=await axiosInstance.get('/api/categories',{
-                headers:{Authorization:localStorage.getItem('token')}
-            })
-            const data:Category[]=response.data
-            setCategoriesData(data)
-        } catch(error){
-            console.error('Error fetching categories',error)
-        }
-    }
+    
 
     const isSmallScreen = useMediaQuery("(max-width:600px)");
 
@@ -90,7 +81,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSa
                 <Autocomplete sx={{backgroundColor: "white", color: "#32675B", margin: "5px"}}
                     options={categoriesData}
                     value={selectedCategory}
-                    onChange={(event, newValue) => {
+                    onChange={(_event, newValue) => {
                         setSelectedCategory(newValue);
                     }}
                     getOptionLabel={(option) => option.categoryName}

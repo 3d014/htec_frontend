@@ -1,5 +1,6 @@
  interface Vendor {
     vendorName:string,
+    vendorId:string,
     vendorAddress:string,
     vendorIdentificationNumber:string,
     vendorPDVNumber:string,

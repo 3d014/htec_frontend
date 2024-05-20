@@ -8,21 +8,22 @@ import { Product } from '../../models/product'
 import axiosInstance from '../../api/axiosInstance'
 import DeleteIcon from '@mui/icons-material/Delete'
 import Category from '../../models/category'
+import fetchCategories from '../../utils/fetchFunctions/fetchCategories'
+import fetchProductsData from '../../utils/fetchFunctions/fetchProducts'
 
 
+const initialCategory:Category={ categoryId:'',
+categoryName:''}
 
 
 
 
 const Products = () => {
-    const [products, setProducts] = useState<Product[]>([]);
+    const [productsData, setProductsData] = useState<Product[]>([]);
     const isMatch= useMediaQuery('(min-width:600px)')
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [deleteFlag,setDeleteFlag]=useState(false)
-    const [categoriesData,setCategoriesData]=useState<Category[]>([{
-        categoryId:'',
-        categoryName:''
-    }])
+    const [categoriesData,setCategoriesData]=useState<Category[]>([initialCategory])
 
     const config: Columns<Product>[] = [
         {   
@@ -52,42 +53,19 @@ const Products = () => {
         const {productId}=product
         if (productId){
             await axiosInstance.delete('/api/products',{headers:{Authorization:localStorage.getItem('token')},data:{productId}})
-            const filteredProducts:Product[]=products.filter(item=>product.productId!==item.productId)
-            setProducts(filteredProducts)
+            const filteredProducts:Product[]=productsData.filter(item=>product.productId!==item.productId)
+            setProductsData(filteredProducts)
             setDeleteFlag(!deleteFlag)
         }
         
     }
-    const fetchData = async () => {
-        try {
-            const response = await axiosInstance.get('/api/products',{headers:{Authorization:localStorage.getItem('token')}})
-            
-            const data: Product[] = response.data;
-            
-            setProducts(data);
-           
-            
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        }
-    };
+   
 
-    const fetchCategories=async ()=>{
-        try{
-            const response=await axiosInstance.get('/api/categories',{
-                headers:{Authorization:localStorage.getItem('token')}
-            })
-            const data:Category[]=response.data
-            setCategoriesData(data)
-        } catch(error){
-            console.error('Error fetching categories',error)
-        }
-    }
-
+ 
     useEffect(() => {
 
-        fetchData()
-        fetchCategories()
+        fetchProductsData(setProductsData)
+        fetchCategories(setCategoriesData)
         
     }, []);
     const handleAddProduct = () => {
@@ -103,7 +81,7 @@ const Products = () => {
         
 
         await axiosInstance.post('/api/products',{...newProduct},{headers:{Authorization:localStorage.getItem('token')}})
-        fetchData()
+        fetchProductsData(setProductsData)
     
        
     };
@@ -113,7 +91,7 @@ const Products = () => {
         <Box sx={isMatch?styles.largerScreen.proizvodi:styles.smallerScreen.proizvodi}> Proizvodi </Box>
         <Box sx={{width:'100%', display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
        
-            {<GenericTable data={products} config={config}/>}  
+            {<GenericTable data={productsData} config={config}/>}  
            
            
            
