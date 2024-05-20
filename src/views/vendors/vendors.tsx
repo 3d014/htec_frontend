@@ -8,6 +8,22 @@ import axiosInstance from '../../api/axiosInstance';
 import { useEffect, useState } from 'react'
 
 import Category from "../../models/category";
+import fetchCategories from "../../utils/fetchFunctions/fetchCategories";
+import fetchVendors from "../../utils/fetchFunctions/fetchVendors";
+
+
+const initialVendor:Vendor={
+  vendorId:'',
+    vendorName: '',
+    vendorAddress: '',
+    vendorIdentificationNumber: '',
+    vendorCategoryId:'',
+    vendorPDVNumber: '',
+    vendorCity: '',
+    vendorTelephoneNumber: [],
+    vendorEmail: [],
+    vendorTransactionNumber: []
+}
 
 const Vendors = ()=>{
 
@@ -50,19 +66,7 @@ function handleAddTransactionNumber(newTransactionNumber: string) {
 }
 
 
-const [newVendor,setNewVendor]=useState<Vendor>(
-        {
-            vendorName:'',
-            vendorAddress:'',
-            vendorIdentificationNumber:'',
-            vendorCategoryId:'',
-            vendorPDVNumber:'',
-            vendorCity:'',
-            vendorTelephoneNumber:[],
-            vendorEmail:[],
-            vendorTransactionNumber:[]
-        }
-    )
+const [newVendor,setNewVendor]=useState<Vendor>(initialVendor)
 
  const handleSelectedCategory=(category:Category)=>{
   setSelectedCategory(category)
@@ -87,31 +91,13 @@ const [newVendor,setNewVendor]=useState<Vendor>(
         }
     };
 
-    const fetchVendors = async () => {
-        try {
-            const response = await axiosInstance.get('/api/vendors', {
-                headers: { Authorization: localStorage.getItem('token') }
-            });
-            const data: Vendor[] = response.data;
-            setVendorData(data);
-        } catch (error) {
-            console.error('Error fetching vendors:', error);
-        }
-    };
 
-    const fetchCategories=async()=>{
-      try{
-        const response = await axiosInstance.get('/api/categories',{headers:{Authorization:localStorage.getItem('token')}})
-        const data:Category[]=response.data
-        setCategoryData(data)
-      }catch(error){
-        console.error('Error fetching categories:',error)
-      }
-    }
+
+
 
     useEffect(() => {
-        fetchVendors();
-        fetchCategories()
+        fetchVendors(setVendorData);
+        fetchCategories(setCategoryData)
     }, []);
 
     const handleSaveVendor = async (newVendor: Vendor) => {
@@ -119,21 +105,11 @@ const [newVendor,setNewVendor]=useState<Vendor>(
             await axiosInstance.post('/api/vendors', newVendor, {
                 headers: { Authorization: localStorage.getItem('token') }
             });
-            fetchVendors();
+            fetchVendors(setVendorData);
         } catch (error) {
             console.error('Error saving vendor:', error);
         }
-        setNewVendor({
-            vendorName: '',
-            vendorAddress: '',
-            vendorIdentificationNumber: '',
-            vendorCategoryId:'',
-            vendorPDVNumber: '',
-            vendorCity: '',
-            vendorTelephoneNumber: [],
-            vendorEmail: [],
-            vendorTransactionNumber: []
-        });
+        setNewVendor(initialVendor);
         setCurrentEmailValue('')
         setCurrentPhoneNumber('')
         setCurrentTransactionNumber('')

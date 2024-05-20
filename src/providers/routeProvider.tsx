@@ -10,6 +10,7 @@ import Home from "../views/home/home";
 import EmailSent from "../views/email_sent/email_sent";
 import Vendors from "../views/vendors/vendors";
 import Categories from "../views/categories/categories";
+import Invoices from "../views/invoice/invoice";
 
 
 const RoutesData: Route[] = [
@@ -62,6 +63,16 @@ const RoutesData: Route[] = [
     private: false,
     isNavigation: true,
     component: <Categories />,
+  },
+  {
+    routeName: "Invoices",
+    path: "/invoices",
+    id: uuidv4(),
+    roles: ["admin", "user"],
+    protected: true,
+    private: false,
+    isNavigation: true,
+    component: <Invoices />,
   },
 
   {

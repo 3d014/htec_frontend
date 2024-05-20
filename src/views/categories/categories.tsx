@@ -1,4 +1,4 @@
-import { Box, Button, Grid, TextField, useMediaQuery } from "@mui/material"
+import { Box, Button, TextField} from "@mui/material"
 import Category from "../../models/category"
 import { useEffect, useState } from "react"
 import axiosInstance from "../../api/axiosInstance"
@@ -6,51 +6,38 @@ import { Columns } from "../../models/columns"
 import DeleteIcon from '@mui/icons-material/Delete'
 import GenericTable from "../../components/table/genericTable"
 import GenericModal from "../../components/modal/genericModal"
+import fetchCategories from "../../utils/fetchFunctions/fetchCategories"
+
+const initialCategory:Category={ 
+    categoryId:'',
+    categoryName:''
+}
 const Categories=()=>{
-    const isMatch= useMediaQuery('(min-width:600px)')
-    const [deleteFlag,setDeleteFlag]=useState(false)
+   
+    const [deleteFlag,_setDeleteFlag]=useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const [categoriesData,setCategoriesData]=useState<Category[]>([{
-        categoryId:'',
-        categoryName:''
-    }])
+    const [categoriesData,setCategoriesData]=useState<Category[]>([initialCategory])
 
-    const [newCategory,setNewCategory]=useState<Category>({
-        categoryName:'',
-        categoryId:''
-    })
+    const [newCategory,setNewCategory]=useState<Category>(initialCategory)
 
     const handleModalClose = () => {
         setIsModalOpen(false);
     };
 
     
-    const fetchCategories=async ()=>{
-        try{
-            const response=await axiosInstance.get('/api/categories',{
-                headers:{Authorization:localStorage.getItem('token')}
-            })
-            const data:Category[]=response.data
-            setCategoriesData(data)
-        } catch(error){
-            console.error('Error fetching categories',error)
-        }
-    }
+
     const handleSubmitCategory=async ()=>{
         try {
             await axiosInstance.post('/api/categories', newCategory, {
                 headers: { Authorization: localStorage.getItem('token') }
             });
-            fetchCategories();
+            fetchCategories(setCategoriesData);
             
         } catch (error) {
             console.error('Error saving vendor:', error);
         }
-        setNewCategory({
-            categoryName:'',
-            categoryId:''
-        })
+        setNewCategory(initialCategory)
         setIsModalOpen(false)
         
     };
@@ -59,7 +46,7 @@ const Categories=()=>{
     
     
     useEffect(()=>{
-        fetchCategories()
+        fetchCategories(setCategoriesData)
     },[])
 
     const handleAddCategory=()=>{

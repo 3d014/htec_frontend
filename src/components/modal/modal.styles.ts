@@ -21,7 +21,7 @@ const styles: AddProductModalStyles = {
             backgroundColor: '#D0FBE8',
             boxShadow: '24',
             padding:'20px',
-            width:'400px',
+            width:'600px',
             borderRadius:'10px',
             color: '#32675B',
         },
@@ -36,7 +36,7 @@ const styles: AddProductModalStyles = {
     },
     smallerScreen: {
         modal: {
-            width:'200px',
+            width:'300px',
             display:'flex',
             flexDirection:'column',
             backgroundColor: '#D0FBE8',
