@@ -77,13 +77,14 @@ const [newVendor,setNewVendor]=useState<Vendor>(initialVendor)
  }
 
  const handleDeleteVendor = async (vendor: Vendor) => {
-        const { vendorIdentificationNumber } = vendor; 
-        if (vendorIdentificationNumber) {
+        const { vendorId } = vendor; 
+        if (vendorId) {
             try {
-                await axiosInstance.delete(`/api/vendor/${vendorIdentificationNumber}`, {
-                    headers: { Authorization: localStorage.getItem('token') }
+                await axiosInstance.delete(`/api/vendors`, {
+                    headers: { Authorization: localStorage.getItem('token') },
+                    data:{vendorId}
                 });
-                const filteredVendors: Vendor[] = vendorData.filter(item => item.vendorIdentificationNumber !== vendorIdentificationNumber);
+                const filteredVendors: Vendor[] = vendorData.filter(item => item.vendorId !== vendorId);
                 setVendorData(filteredVendors);
             } catch (error) {
                 console.error('Error deleting vendor:', error);
