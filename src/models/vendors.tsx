@@ -4,11 +4,11 @@
     vendorAddress:string,
     vendorIdentificationNumber:string,
     vendorPDVNumber:string,
-    vendorCategoryId:string,
     vendorCity:string,
     vendorTelephoneNumber:string[]
     vendorEmail:string[],
-    vendorTransactionNumber:string[]
+    vendorTransactionNumber:string[],
+    supportsAvans:boolean
 }
 
 export default Vendor

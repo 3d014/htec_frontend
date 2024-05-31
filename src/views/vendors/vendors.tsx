@@ -1,4 +1,4 @@
-import {Autocomplete, Box, Button, Chip, TextField } from "@mui/material"
+import {Autocomplete, Box, Button, Chip, FormControlLabel, Switch, TextField } from "@mui/material"
 import GenericTable from "../../components/table/genericTable"
 import Vendor from "../../models/vendors";
 import { Columns } from "../../models/columns";
@@ -6,9 +6,6 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import GenericModal from "../../components/modal/genericModal";
 import axiosInstance from '../../api/axiosInstance';
 import { useEffect, useState } from 'react'
-
-import Category from "../../models/category";
-import fetchCategories from "../../utils/fetchFunctions/fetchCategories";
 import fetchVendors from "../../utils/fetchFunctions/fetchVendors";
 
 
@@ -17,7 +14,7 @@ const initialVendor:Vendor={
     vendorName: '',
     vendorAddress: '',
     vendorIdentificationNumber: '',
-    vendorCategoryId:'',
+    supportsAvans:false,
     vendorPDVNumber: '',
     vendorCity: '',
     vendorTelephoneNumber: [],
@@ -29,8 +26,7 @@ const Vendors = ()=>{
 
    
     const [vendorData,setVendorData]=useState<Vendor[]>([])
-    const [ categoryData,setCategoryData]=useState<Category[]>([])
-    const [selectedCategory,setSelectedCategory]=useState<Category>()
+
     const [deleteFlag,setDeleteFlag]=useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -68,13 +64,7 @@ function handleAddTransactionNumber(newTransactionNumber: string) {
 
 const [newVendor,setNewVendor]=useState<Vendor>(initialVendor)
 
- const handleSelectedCategory=(category:Category)=>{
-  setSelectedCategory(category)
-  setNewVendor((prevVendor) => ({
-    ...prevVendor, // Spread previous state to retain existing properties
-    vendorCategoryId: category.categoryId // Update vendorCategoryId
-  }));
- }
+
 
  const handleDeleteVendor = async (vendor: Vendor) => {
         const { vendorId } = vendor; 
@@ -98,7 +88,7 @@ const [newVendor,setNewVendor]=useState<Vendor>(initialVendor)
 
     useEffect(() => {
         fetchVendors(setVendorData);
-        fetchCategories(setCategoryData)
+      
     }, []);
 
     const handleSaveVendor = async (newVendor: Vendor) => {
@@ -141,11 +131,12 @@ const [newVendor,setNewVendor]=useState<Vendor>(initialVendor)
             getValue:(Vendor:Vendor)=>Vendor.vendorAddress
         },
         {
-          getHeader:()=>'Category',
+          getHeader:()=>'Avans',
           getValue:(Vendor:Vendor)=>{
-           return categoryData.map(category=>{
-              if (Vendor.vendorCategoryId==category.categoryId) return category.categoryName
-            })
+            if(Vendor.supportsAvans){return 'Supports'}
+              else {
+                return "Doesn't support"
+              }
           }
         }
         
@@ -154,7 +145,7 @@ const [newVendor,setNewVendor]=useState<Vendor>(initialVendor)
     ];
 
  return <Box sx={{display:'flex',flexDirection:'column',margin:'5%',alignItems:'center',centerItems:"center"}}>
-    <h1>Vendori</h1>
+    <h1>Vendors</h1>
     <GenericTable config={config} data={vendorData}></GenericTable>
 
     <Box sx={{  marginTop: '20px' }}>
@@ -270,15 +261,17 @@ const [newVendor,setNewVendor]=useState<Vendor>(initialVendor)
   }}
 />
 
-<Autocomplete
-  options={categoryData||null}
-  value={selectedCategory||null}
-  onChange={(_e, newValue) => {
-    if (newValue) handleSelectedCategory(newValue);
-  }}
-  getOptionLabel={(option) => option.categoryName}
-  renderInput={(params) => <TextField {...params} label="Category" />}
-/>
+
+ <FormControlLabel
+                control={
+                    <Switch
+                        checked={newVendor.supportsAvans}
+                        onChange={(e) => setNewVendor({ ...newVendor, supportsAvans: e.target.checked })}
+                    />
+                }
+                label="Supports Avans"
+                sx={{ backgroundColor: "white", color: "#32675B", margin: "5px" }}
+            />
 
   
             <Button onClick={()=>{handleSaveVendor(newVendor)}}>Submit</Button>

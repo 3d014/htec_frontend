@@ -6,6 +6,8 @@ import { toast } from 'react-toastify';
 import Category from '../../models/category';
 
 import fetchCategories from '../../utils/fetchFunctions/fetchCategories';
+ 
+import fetchProducts from '../../utils/fetchFunctions/fetchProducts';
 
 
 interface AddProductModalProps {
@@ -14,30 +16,40 @@ interface AddProductModalProps {
     onSave: (product:Product) => void;
 }
 
+
 const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSave }) => {
     const [productName, setProductName] = useState('');
     
     const [productMeasure, setProductMeasure] = useState('');
+    const [productsData,setProductsData]=useState<Product[]>([])
 
     const handleSaveProduct = () => {
       
         
       
         const product:Product={
-
+            
             productName,
             measuringUnit:productMeasure,
-        categoryId:selectedCategory?.categoryId}
+        categoryId:selectedCategory?.categoryId
+        }
 
-            if (!product.productName || !product.measuringUnit){
+            if (!product.productName || !product.measuringUnit||!product.categoryId){
 
-                toast.error('polja ne mogu biti prazna')
+                toast.error("Fields can't be empty")
                 return
             }
 
+            if (productsData.map(product => product.productName.toLowerCase()).includes(product.productName.toLowerCase())){
+                toast.error('Product already exists')
+                return
+            }
+
+        
+
         onSave(product);
         setProductName('')
-        
+        setSelectedCategory(null)
         setProductMeasure('')
         onClose();
     };
@@ -50,6 +62,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSa
 
     useEffect(()=>{
         fetchCategories(setCategoriesData)
+        fetchProducts(setProductsData)
     },[])
     
 

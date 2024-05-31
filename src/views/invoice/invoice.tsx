@@ -10,7 +10,7 @@ import Invoice from "../../models/invoice";
 import fetchVendors from "../../utils/fetchFunctions/fetchVendors";
 
 import { Product } from "../../models/product";
-import fetchProductsData from "../../utils/fetchFunctions/fetchProducts";
+import fetchProducts from "../../utils/fetchFunctions/fetchProducts";
 import axiosInstance from "../../api/axiosInstance";
 import GenericTable from "../../components/table/genericTable";
 import fetchInvoices from "../../utils/fetchFunctions/fetchInvoices";
@@ -238,7 +238,7 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
 
     useEffect(()=>{
         fetchVendors(setVendorData)
-        fetchProductsData(setProductsData)
+        fetchProducts(setProductsData)
         fetchInvoices(setInvoicesData)
     },[])
 

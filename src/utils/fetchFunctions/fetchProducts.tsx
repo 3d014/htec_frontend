@@ -1,7 +1,7 @@
 import axiosInstance from "../../api/axiosInstance";
 import { Product } from "../../models/product";
 
-const fetchProductsData = async (productsStateSetter:React.Dispatch<React.SetStateAction<Product[]>>) => {
+const fetchProducts = async (productsStateSetter:React.Dispatch<React.SetStateAction<Product[]>>) => {
     try {
         const response = await axiosInstance.get('/api/products',{headers:{Authorization:localStorage.getItem('token')}})
         
@@ -15,4 +15,4 @@ const fetchProductsData = async (productsStateSetter:React.Dispatch<React.SetSta
     }
 };
 
-export default fetchProductsData
+export default fetchProducts

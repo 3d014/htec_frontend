@@ -9,7 +9,7 @@ import axiosInstance from '../../api/axiosInstance'
 import DeleteIcon from '@mui/icons-material/Delete'
 import Category from '../../models/category'
 import fetchCategories from '../../utils/fetchFunctions/fetchCategories'
-import fetchProductsData from '../../utils/fetchFunctions/fetchProducts'
+import fetchProducts from '../../utils/fetchFunctions/fetchProducts'
 
 
 const initialCategory:Category={ categoryId:'',
@@ -64,7 +64,7 @@ const Products = () => {
  
     useEffect(() => {
 
-        fetchProductsData(setProductsData)
+        fetchProducts(setProductsData)
         fetchCategories(setCategoriesData)
         
     }, []);
@@ -81,7 +81,7 @@ const Products = () => {
         
 
         await axiosInstance.post('/api/products',{...newProduct},{headers:{Authorization:localStorage.getItem('token')}})
-        fetchProductsData(setProductsData)
+        fetchProducts(setProductsData)
     
        
     };
