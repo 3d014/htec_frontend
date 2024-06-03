@@ -468,7 +468,7 @@
                   control={
                       <Switch
                           checked={newVendor.supportsAvans}
-                          onChange={(e) => setCurrentVendor({ ...currentVendor, supportsAvans: e.target.checked })}
+                          onChange={(e) => setNewVendor({ ...newVendor, supportsAvans: e.target.checked })}
                       />
                   }
                   label="Supports Avans"
