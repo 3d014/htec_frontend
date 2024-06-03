@@ -5,7 +5,7 @@
     vendorIdentificationNumber:string,
     vendorPDVNumber:string,
     vendorCity:string,
-    vendorTelephoneNumber:string[]
+    vendorTelephone:string[]
     vendorEmail:string[],
     vendorTransactionNumber:string[],
     supportsAvans:boolean

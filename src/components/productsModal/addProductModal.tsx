@@ -79,7 +79,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSa
     
 
     const isSmallScreen = useMediaQuery("(max-width:600px)");
-    console.log(productName)
+    
     return (
         <Modal open={isOpen} onClose={onClose}>
             <Box sx={isSmallScreen ? styles.smallerScreen.modal : styles.largerScreen.modal}>
@@ -95,7 +95,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSa
                 
                 <TextField
                     sx={isSmallScreen ? styles.smallerScreen.textField : styles.largerScreen.textField}
-                    label="Mjerna jedinica"
+                    label="Measuring unit"
                     value={productMeasure}
                     onChange={(e) => setProductMeasure(e.target.value)}
                     fullWidth
