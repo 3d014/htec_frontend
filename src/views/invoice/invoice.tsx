@@ -8,9 +8,9 @@ import Vendor from "../../models/vendors";
 import Invoice from "../../models/invoice";
 
 import fetchVendors from "../../utils/fetchFunctions/fetchVendors";
-
+import DeleteIcon from '@mui/icons-material/Delete'
 import { Product } from "../../models/product";
-import fetchProductsData from "../../utils/fetchFunctions/fetchProducts";
+import fetchProducts from "../../utils/fetchFunctions/fetchProducts";
 import axiosInstance from "../../api/axiosInstance";
 import GenericTable from "../../components/table/genericTable";
 import fetchInvoices from "../../utils/fetchFunctions/fetchInvoices";
@@ -56,19 +56,19 @@ const initialVendor:Vendor={
       vendorName: '',
       vendorAddress: '',
       vendorIdentificationNumber: '',
-      vendorCategoryId:'',
       vendorPDVNumber: '',
       vendorCity: '',
       vendorTelephoneNumber: [],
       vendorEmail: [],
-      vendorTransactionNumber: []
+      vendorTransactionNumber: [],
+      supportsAvans: false
   }
 
 const Invoices=()=>{
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [vendorData,setVendorData]=useState<Vendor[]>([])
     const [selectedVendor,setSelectedVendor]=useState<Vendor>()
-
+    const [deleteFlag,setDeleteFlag]=useState(false)
 
     const [invoicesData,setInvoicesData]=useState<Invoice[]>([])
 
@@ -178,6 +178,16 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
             return updatedItems;
         });
     };
+    const handleDeleteInvoice=async (invoice:Invoice)=>{
+        const {invoiceId}=invoice
+        if (invoiceId){
+            await axiosInstance.delete('/api/invoices',{headers:{Authorization:localStorage.getItem('token')},data:{invoiceId}})
+            const filteredInvoices:Invoice[]=invoicesData.filter(item=>invoice.invoiceId!==item.invoiceId)
+            setInvoicesData(filteredInvoices)
+            setDeleteFlag(!deleteFlag)
+        }
+        
+    }
 
     const handleSubmit =async () => {
 
@@ -238,13 +248,25 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
 
     useEffect(()=>{
         fetchVendors(setVendorData)
-        fetchProductsData(setProductsData)
+        fetchProducts(setProductsData)
         fetchInvoices(setInvoicesData)
     },[])
 
 
 
     const config: Columns<Invoice>[] = [
+        {
+            getHeader:() => 'Settings',
+            getValue: (invoice: Invoice) =>
+                <> {deleteFlag? 
+                <div style={{width:'50px',height:"20px"}}>
+                    <Button size='small' onClick={()=>{handleDeleteInvoice(invoice)}}>
+                        <DeleteIcon sx={{color:'#32675B'}}/>
+                    </Button>
+                </div>
+                : <div style={{width:'50px',height:"20px"}}>
+                    </div>}</>
+        },
         
         {
             getHeader:()=>'Invoice id',
@@ -350,11 +372,14 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
 
         <Box sx={{width:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>
             <Box >
-            <GenericTable config={config} data={invoicesData}></GenericTable>
-            </Box>
-        </Box>
+            {<GenericTable config={config} data={invoicesData}></GenericTable>}
 
-       
+            <Box sx={{  marginTop: '20px' }}>
+            <Button variant="contained" color="secondary" style={{ marginLeft: '10px',backgroundColor:"#32675B" }} onClick={()=>{setDeleteFlag(!deleteFlag)}}>Delete Invoice</Button>
+        </Box>
+        </Box>
+        </Box>
+        
     </Box>
     </>
 }

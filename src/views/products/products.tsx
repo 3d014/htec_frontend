@@ -7,10 +7,10 @@ import GenericTable from '../../components/table/genericTable'
 import { Product } from '../../models/product'
 import axiosInstance from '../../api/axiosInstance'
 import DeleteIcon from '@mui/icons-material/Delete'
+import EditIcon from '@mui/icons-material/Edit';
 import Category from '../../models/category'
 import fetchCategories from '../../utils/fetchFunctions/fetchCategories'
 import fetchProductsData from '../../utils/fetchFunctions/fetchProducts'
-
 
 const initialCategory:Category={ categoryId:'',
 categoryName:''}
@@ -23,12 +23,24 @@ const Products = () => {
     const isMatch= useMediaQuery('(min-width:600px)')
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [deleteFlag,setDeleteFlag]=useState(false)
+    const [initialProduct, setInitialProduct] = useState<Product | null>(null);
     const [categoriesData,setCategoriesData]=useState<Category[]>([initialCategory])
-
+    const [editFlag,setEditFlag]=useState<boolean>(false)
     const config: Columns<Product>[] = [
         {   
             getHeader: () => 'Settings',
-            getValue: (product: Product) =><> {deleteFlag? <div style={{width:'50px',height:"20px"}}><Button size='small' onClick={()=>{handleDeleteProduct(product)}}><DeleteIcon sx={{color:'#32675B'}}/></Button></div>:<div style={{width:'50px',height:"20px"}}></div>}</>
+            getValue: (product: Product) =>
+            <> {deleteFlag? 
+            <div style={{width:'50px',height:"20px"}}>
+                <Button size='small' onClick={()=>{handleDeleteProduct(product)}}>
+                    <DeleteIcon sx={{color:'red'}}/>
+                </Button>
+            </div>
+            : <div style={{width:'50px',height:"20px"}}>
+                <Button size='small' onClick={()=>{handleEditProduct(product)}}>
+                    <EditIcon sx={{color:'#32675B'}}/>
+                </Button>
+                </div>}</>
         },
        
         { 
@@ -60,6 +72,11 @@ const Products = () => {
         
     }
    
+    const handleEditProduct = async (product: Product) => {
+        setInitialProduct(product);
+        setEditFlag(true)
+        setIsModalOpen(true);
+    }
 
  
     useEffect(() => {
@@ -74,16 +91,16 @@ const Products = () => {
 
     const handleModalClose = () => {
         setIsModalOpen(false);
+        setInitialProduct(null);
     };
 
     const handleSaveProduct = async (newProduct:Product) => {
-      
-        
-
+        if(initialProduct) {
+            await axiosInstance.put('/api/products', {...newProduct}, {headers:{Authorization:localStorage.getItem('token')}})
+        } else {
         await axiosInstance.post('/api/products',{...newProduct},{headers:{Authorization:localStorage.getItem('token')}})
+        }
         fetchProductsData(setProductsData)
-    
-       
     };
 
 
@@ -98,12 +115,11 @@ const Products = () => {
            
             <Box sx={{  marginTop: '20px' }}>
                     <Button variant="contained"  style={{ marginLeft: '10px',backgroundColor:"#32675B" }} onClick={handleAddProduct}>Add Product</Button>
-                    <Button variant="contained" color="secondary" style={{ marginLeft: '10px',backgroundColor:"#32675B" }} onClick={()=>{setDeleteFlag(!deleteFlag)}}>Delete Product</Button>
+                    <Button variant="contained" color="secondary" style={deleteFlag?{marginLeft: '10px',backgroundColor:"red" }:{ marginLeft: '10px',backgroundColor:"#32675B" }} onClick={()=>{setDeleteFlag(!deleteFlag)}}>Delete Product</Button>
                 </Box>
         </Box>
       
-        <AddProductModal isOpen={isModalOpen} onClose={handleModalClose} onSave={handleSaveProduct} />
-        
+        <AddProductModal isOpen={isModalOpen} onClose={handleModalClose} onSave={handleSaveProduct} initialProduct={initialProduct} isEdit={editFlag}/>
         
         </Box>
     );
