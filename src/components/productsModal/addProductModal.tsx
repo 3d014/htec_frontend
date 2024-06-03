@@ -14,9 +14,10 @@ interface AddProductModalProps {
     onClose: () => void;
     onSave: (product:Product) => void;
     initialProduct : Product | null;
+    isEdit:boolean
 }
 
-const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSave, initialProduct}) => {
+const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSave, initialProduct,isEdit}) => {
     const [productId, setProductId] = useState<string | undefined>(undefined)
     const [productName, setProductName] = useState('');
     const [productMeasure, setProductMeasure] = useState('');
@@ -35,11 +36,14 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSa
                 return
             }
 
-            if(productsData.map(product => product.productName.toLowerCase()).includes(product.productName.toLowerCase()))
-                {
-                    toast.error("Product already exists")
-                    return
-                }
+            if(!isEdit){
+                if(productsData.map(product => product.productName.toLowerCase()).includes(product.productName.toLowerCase()))
+                    {
+                        toast.error("Product already exists")
+                        return
+                    }
+            } 
+            
         onSave(product);
         setProductName('')
         setProductMeasure('')

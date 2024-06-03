@@ -25,7 +25,7 @@ const Products = () => {
     const [deleteFlag,setDeleteFlag]=useState(false)
     const [initialProduct, setInitialProduct] = useState<Product | null>(null);
     const [categoriesData,setCategoriesData]=useState<Category[]>([initialCategory])
-
+    const [editFlag,setEditFlag]=useState<boolean>(false)
     const config: Columns<Product>[] = [
         {   
             getHeader: () => 'Settings',
@@ -74,6 +74,7 @@ const Products = () => {
    
     const handleEditProduct = async (product: Product) => {
         setInitialProduct(product);
+        setEditFlag(true)
         setIsModalOpen(true);
     }
 
@@ -118,7 +119,7 @@ const Products = () => {
                 </Box>
         </Box>
       
-        <AddProductModal isOpen={isModalOpen} onClose={handleModalClose} onSave={handleSaveProduct} initialProduct={initialProduct}/>
+        <AddProductModal isOpen={isModalOpen} onClose={handleModalClose} onSave={handleSaveProduct} initialProduct={initialProduct} isEdit={editFlag}/>
         
         </Box>
     );
