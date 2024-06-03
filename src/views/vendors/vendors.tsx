@@ -185,7 +185,7 @@
           {   
               getHeader: () => 'Settings',
               getValue: (vendor: Vendor) =><> {deleteFlag? <div style={{width:'50px',height:"20px"}}>
-                <Button size='small' onClick={()=>{handleDeleteVendor(vendor)}}><DeleteIcon sx={{color:'#32675B'}}/>
+                <Button size='small' onClick={()=>{handleDeleteVendor(vendor)}}><DeleteIcon sx={{color:'red'}}/>
                 </Button></div>:<div style={{width:'50px',height:"20px"}}>
                   <Button size='small' onClick={()=>{handleEditVendor(vendor)}}>
               <EditIcon sx={{color:'#32675B'}}/>
@@ -227,7 +227,7 @@
 
           <Box sx={{  marginTop: '20px' }}>
                           <Button variant="contained"  style={{ marginLeft: '10px',backgroundColor:"#32675B" }} onClick={handleAddVendor}>Add Vendor</Button>
-                          <Button variant="contained" color="secondary" style={{ marginLeft: '10px',backgroundColor:"#32675B" }} onClick={()=>{setDeleteFlag(!deleteFlag)}}>Delete Vendor</Button>
+                          <Button variant="contained" color="secondary" style={!deleteFlag?{ marginLeft: '10px',backgroundColor:"#32675B"}:{ marginLeft: '10px',backgroundColor:"red" }} onClick={()=>{setDeleteFlag(!deleteFlag)}}>Delete Vendor</Button>
           </Box>
       <GenericModal isOpen={isModalOpen} onClose={handleModalClose} >
       
