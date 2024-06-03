@@ -7,6 +7,8 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import GenericTable from "../../components/table/genericTable"
 import GenericModal from "../../components/modal/genericModal"
 import fetchCategories from "../../utils/fetchFunctions/fetchCategories"
+import EditIcon from '@mui/icons-material/Edit';
+
 
 const initialCategory:Category={ 
     categoryId:'',
@@ -16,15 +18,18 @@ const Categories=()=>{
    
     const [deleteFlag,_setDeleteFlag]=useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false);
-
+    const [currentCategory, setCurrentCategory] = useState<Category>(initialCategory)
     const [categoriesData,setCategoriesData]=useState<Category[]>([initialCategory])
-
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [newCategory,setNewCategory]=useState<Category>(initialCategory)
 
     const handleModalClose = () => {
         setIsModalOpen(false);
     };
 
+    const handleEditModalClose = () => {
+        setIsEditModalOpen(false)
+    }
     
 
     const handleSubmitCategory=async ()=>{
@@ -42,6 +47,31 @@ const Categories=()=>{
         
     };
 
+    const handleSaveEditCategory = async (category: Category) => {
+        try {
+            await axiosInstance.put('/api/categories', category, {
+                headers: { Authorization: localStorage.getItem('token') }
+            })
+        } catch(error) {
+            console.error('Error saving vendor:', error)
+        }
+    }
+    const handleDeleteCategory = async (category:Category)=>{
+        const {categoryId}=category
+        if (categoryId){
+            await axiosInstance.delete('/api/categories',{headers:{Authorization:localStorage.getItem('token')},data:{categoryId}})
+            const filteredCategories: Category[] = categoriesData.filter(item => category.categoryId !== item.categoryId)
+            setCategoriesData(filteredCategories)
+            _setDeleteFlag(!deleteFlag)
+        }
+        
+    }
+
+    const handleEditCategory = async (category: Category) => {
+        setCurrentCategory(category)
+        setIsEditModalOpen(true)
+    }
+
     
     
     
@@ -54,7 +84,17 @@ const Categories=()=>{
     }
     const config:Columns<Category>[]=[
         {getHeader:()=>'Settings',
-         getValue:(_Category:Category)=><> {deleteFlag? <div style={{width:'50px',height:"20px"}}><Button size='small' onClick={()=>{console.log('')}}><DeleteIcon sx={{color:'#32675B'}}/></Button></div>:<div style={{width:'50px',height:"20px"}}></div>}</>
+         getValue:
+         (_Category:Category) =>
+         <> {deleteFlag? <div style={{width:'50px',height:"20px"}}>
+            <Button size='small' onClick={()=>{handleDeleteCategory(_Category)}}>
+                <DeleteIcon sx={{color:'#32675B'}}/>
+            </Button></div> :
+            <div style={{width:'50px',height:"20px"}}>
+                <Button size='small' onClick={()=>{handleEditCategory(_Category)}}>
+                    <EditIcon sx={{color:'#32675B'}}/>
+                </Button>
+                </div>}</>
         },
         {getHeader:()=>'Category Name',
             getValue:(Category:Category)=>Category.categoryName
@@ -66,7 +106,7 @@ const Categories=()=>{
             <GenericTable config={config} data={categoriesData}></GenericTable>
             <Box sx={{margin:'5px',display:'flex',gap:'10px'}}>
                 <Button variant='contained' sx={{backgroundColor:"#32675B"}} onClick={handleAddCategory}>Add</Button>
-                <Button variant='contained' sx={{backgroundColor:"#32675B"}}>Delete</Button>
+                <Button variant='contained' sx={{backgroundColor:"#32675B"}} onClick={() => {_setDeleteFlag(!deleteFlag)}}>Delete</Button>
             </Box>
         </Box>
 
@@ -80,7 +120,16 @@ const Categories=()=>{
                 setNewCategory(tempCategory)}} />
             <Button variant='contained' sx={{backgroundColor:"#32675B",":hover":{backgroundColor:'#32675B'}}} onClick={handleSubmitCategory}>Submit</Button>
         </GenericModal>
-
+        <GenericModal isOpen={isEditModalOpen} onClose={handleEditModalClose}>
+            <h3>Add Category name</h3>
+            <TextField label="Category Name" sx={{backgroundColor:'white',color: '#32675B',margin: '5px'}} value={currentCategory.categoryName} onChange={(e)=>{
+                let tempCategory:Category={
+                    categoryId:currentCategory.categoryId,
+                    categoryName:e.target.value
+                }
+                setCurrentCategory(tempCategory)}} />
+            <Button variant='contained' sx={{backgroundColor:"#32675B",":hover":{backgroundColor:'#32675B'}}} onClick = {() => handleSaveEditCategory(currentCategory)}>Submit</Button>
+        </GenericModal>
 
     </Box>
 }

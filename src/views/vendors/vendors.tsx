@@ -7,6 +7,7 @@ import GenericModal from "../../components/modal/genericModal";
 import axiosInstance from '../../api/axiosInstance';
 import { useEffect, useState } from 'react'
 import fetchVendors from "../../utils/fetchFunctions/fetchVendors";
+import EditIcon from '@mui/icons-material/Edit';
 
 
 const initialVendor:Vendor={
@@ -29,7 +30,7 @@ const Vendors = ()=>{
 
     const [deleteFlag,setDeleteFlag]=useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [currentEmailValue,setCurrentEmailValue]=useState<string>('')
 
     function handleAddEmail(newEmail:string){
@@ -39,6 +40,7 @@ const Vendors = ()=>{
     }
     const handleModalClose = () => {
         setIsModalOpen(false);
+        setIsEditModalOpen(false)
     };
 
     const handleAddVendor = () => {
@@ -63,7 +65,7 @@ function handleAddTransactionNumber(newTransactionNumber: string) {
 
 
 const [newVendor,setNewVendor]=useState<Vendor>(initialVendor)
-
+const [currentVendor, setCurrentVendorData] = useState<Vendor>(initialVendor)
 
 
  const handleDeleteVendor = async (vendor: Vendor) => {
@@ -107,12 +109,19 @@ const [newVendor,setNewVendor]=useState<Vendor>(initialVendor)
         setIsModalOpen(!isModalOpen)
     };
 
+    const handleEditProduct = async (vendor: Vendor) => {
+      setCurrentVendorData(vendor)
+      setIsEditModalOpen(true)
+    }
+
     
 
     const config: Columns<Vendor>[] = [
         {   
             getHeader: () => 'Settings',
-            getValue: (vendor: Vendor) =><> {deleteFlag? <div style={{width:'50px',height:"20px"}}><Button size='small' onClick={()=>{handleDeleteVendor(vendor)}}><DeleteIcon sx={{color:'#32675B'}}/></Button></div>:<div style={{width:'50px',height:"20px"}}></div>}</>
+            getValue: (vendor: Vendor) =><> {deleteFlag? <div style={{width:'50px',height:"20px"}}><Button size='small' onClick={()=>{handleDeleteVendor(vendor)}}><DeleteIcon sx={{color:'#32675B'}}/></Button></div>:<div style={{width:'50px',height:"20px"}}><Button size='small' onClick={()=>{handleEditProduct(vendor)}}>
+            <EditIcon sx={{color:'#32675B'}}/>
+        </Button></div>}</>
         },
        
         { 
@@ -267,6 +276,131 @@ const [newVendor,setNewVendor]=useState<Vendor>(initialVendor)
                     <Switch
                         checked={newVendor.supportsAvans}
                         onChange={(e) => setNewVendor({ ...newVendor, supportsAvans: e.target.checked })}
+                    />
+                }
+                label="Supports Avans"
+                sx={{ backgroundColor: "white", color: "#32675B", margin: "5px" }}
+            />
+
+  
+            <Button onClick={()=>{handleSaveVendor(newVendor)}}>Submit</Button>
+
+    </GenericModal>
+    <GenericModal isOpen={isEditModalOpen} onClose={handleModalClose} >
+     
+    <TextField label='Name'sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}} value={currentVendor.vendorName}
+         onChange={(e)=>{setCurrentVendorData({...newVendor,vendorName:e.target.value})}}
+         ></TextField>
+
+        <TextField label='Address'sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}} value={currentVendor.vendorAddress}
+         onChange={(e)=>{setCurrentVendorData({...newVendor,vendorAddress:e.target.value})}}
+         ></TextField>
+        <TextField label='Identification number'sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}} value={currentVendor.vendorIdentificationNumber}
+         onChange={(e)=>{
+            console.log(currentVendor)
+            setCurrentVendorData({...currentVendor,vendorIdentificationNumber:e.target.value})}}> naxiv</TextField>
+       
+        <TextField label='PDV Number'sx=
+        {{ backgroundColor:'white',color: '#32675B',margin: '5px'}}
+        value={currentVendor.vendorPDVNumber}
+        onChange={(e)=>{setCurrentVendorData({...currentVendor,vendorPDVNumber:e.target.value})}}
+        ></TextField>
+        <TextField label='City'sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}}
+        value={currentVendor.vendorCity}
+        onChange={(e)=>{setCurrentVendorData({...currentVendor,vendorCity:e.target.value})}}
+        ></TextField>
+         
+        <TextField label='Email' placeholder="Email" sx={{ backgroundColor:'white',color: '#32675B',margin: '5px'}}  
+        value={currentEmailValue} onChange={(e)=>{setCurrentEmailValue(e.target.value)}} 
+        InputProps={{
+            
+            endAdornment: 
+            <Button 
+                 onClick={()=>
+                    {
+                        handleAddEmail(currentEmailValue)
+                        setCurrentEmailValue('') }
+                    }>
+                add
+            </Button>,
+            startAdornment:(<>
+            {newVendor.vendorEmail.slice(0, 1).map(item=><Chip key={item}
+                tabIndex={-1}
+                label={item}>
+
+                </Chip>
+            )}
+            {newVendor.vendorEmail.length > 1 && <Chip label={`+${newVendor.vendorEmail.length - 1}`} />}
+            </>),
+
+            
+            }
+            
+            }>
+
+            </TextField>
+
+            <TextField
+            label="Telephone"
+            placeholder="Telephone"
+            sx={{ backgroundColor: "white", color: "#32675B", margin: "5px" }}
+            value={currentPhoneNumber}
+            onChange={(e) => setCurrentPhoneNumber(e.target.value)}
+            InputProps={{
+              endAdornment: (
+                <Button
+                  onClick={() => {
+                    handleAddPhoneNumber(currentPhoneNumber);
+                    setCurrentPhoneNumber("");
+                  }}
+                >
+                  add
+                </Button>
+              ),
+              startAdornment: (
+                <>
+                  {newVendor.vendorTelephoneNumber.slice(0, 1).map((item) => (
+                    <Chip key={item} tabIndex={-1} label={item} />
+                  ))}
+                  {newVendor.vendorTelephoneNumber.length > 1 && <Chip label={`+${newVendor.vendorTelephoneNumber.length - 1}`} />}
+                </>
+              ),
+            }}
+          />
+  <TextField
+  label="Transaction Number"
+  placeholder="Transaction Number"
+  sx={{ backgroundColor: "white", color: "#32675B", margin: "5px" }}
+  value={currentTransactionNumber}
+  onChange={(e) => setCurrentTransactionNumber(e.target.value)}
+  InputProps={{
+    endAdornment: (
+      <Button
+        onClick={() => {
+          handleAddTransactionNumber(currentTransactionNumber);
+          setCurrentTransactionNumber("");
+        }}
+      >
+        add
+      </Button>
+    ),
+    startAdornment: (
+      <>
+        {newVendor.vendorTransactionNumber?.slice(0, 1).map((item) => (
+          <Chip key={item} tabIndex={-1} label={item} />
+        ))}
+        {newVendor.vendorTransactionNumber.length > 1 && <Chip label={`+${newVendor.vendorTransactionNumber.length - 1}`} />}
+      </>
+    ),
+  }}
+/>
+
+
+ <FormControlLabel
+                control={
+                    <Switch
+                        checked={newVendor.supportsAvans}
+                        onChange={(e) => setCurrentVendorData({ ...currentVendor, supportsAvans: e.target.checked })}
                     />
                 }
                 label="Supports Avans"
