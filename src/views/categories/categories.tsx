@@ -8,6 +8,7 @@ import GenericTable from "../../components/table/genericTable"
 import GenericModal from "../../components/modal/genericModal"
 import fetchCategories from "../../utils/fetchFunctions/fetchCategories"
 import EditIcon from '@mui/icons-material/Edit';
+import { toast } from "react-toastify"
 
 
 const initialCategory:Category={ 
@@ -33,6 +34,10 @@ const Categories=()=>{
     
 
     const handleSubmitCategory=async ()=>{
+        if(categoriesData.map(category=>category.categoryName.toLowerCase()).includes(newCategory.categoryName)){
+            toast('Category with that name already exists')
+            return
+        }
         try {
             await axiosInstance.post('/api/categories', newCategory, {
                 headers: { Authorization: localStorage.getItem('token') }
@@ -47,9 +52,11 @@ const Categories=()=>{
         
     };
 
-    const handleSaveEditCategory = async (category: Category) => {
+    const handleSaveEditCategory = async (newCategory: Category) => {
+      
+        
         try {
-            await axiosInstance.put('/api/categories', category, {
+            await axiosInstance.put('/api/categories', newCategory, {
                 headers: { Authorization: localStorage.getItem('token') }
             })
         } catch(error) {
