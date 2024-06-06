@@ -3,10 +3,10 @@ interface InvoiceItem{
     invoiceId:string,
     productCode:string,
     productId:string,
-    quantity:number,
-    priceWithoutPdv:number,
-    priceWithPdv:number,
-    sumWithoutPdv:number,
-    sumWithPdv:number,
-    discount:number
+    quantity:number|null,
+    priceWithoutPdv:number|null,
+    priceWithPdv:number|null,
+    sumWithoutPdv:number|null,
+    sumWithPdv:number|null,
+    discount:number|null
 }

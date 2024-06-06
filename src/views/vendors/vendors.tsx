@@ -74,9 +74,7 @@
 
 
   const [newVendor,setNewVendor]=useState<Vendor>(initialVendor)
-  const [currentVendor, setCurrentVendor] = useState<Vendor>(initialVendor)
-
-
+  
   const handleDeleteVendor = async (vendor: Vendor) => {
           const { vendorId } = vendor; 
           if (vendorId) {
