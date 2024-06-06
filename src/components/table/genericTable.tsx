@@ -20,7 +20,7 @@ interface TableProps<T>{
 
 
     return( 
-        <TableContainer sx={{border:'1px solid', borderRadius:'10px',boxShadow:'10px 23px 75px -6px rgba(175,242,218,1)'}}>
+        <TableContainer sx={{border:'1px solid', borderRadius:'10px',boxShadow:'10px 23px 75px -6px rgba(175,242,218,1)',maxHeight:'500px',overflow:'auto'}}>
     <Table >
         <TableHead sx={{}}>
             <TableRow>

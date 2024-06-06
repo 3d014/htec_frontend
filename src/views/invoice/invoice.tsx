@@ -16,6 +16,7 @@ import GenericTable from "../../components/table/genericTable";
 import fetchInvoices from "../../utils/fetchFunctions/fetchInvoices";
 import { Columns } from "../../models/columns";
 import dayjs, { Dayjs } from "dayjs";
+import { toast } from "react-toastify";
 
 const initialInvoice:Invoice={
     invoiceId:'',
@@ -30,26 +31,20 @@ const initialInvoice:Invoice={
 
 const initialInvoiceItem:InvoiceItem={
     invoiceId:'',
-    invoiceItemId:'',
-    priceWithoutPdv:0,
-    priceWithPdv:0,
+    invoiceItemId:uuidv4(),
+    priceWithoutPdv:null,
+    priceWithPdv:null,
     productCode:'',
     productId:'',
-    discount:0,
-    sumWithoutPdv:0,
-    sumWithPdv:0,
-    quantity:0
+    discount:null,
+    sumWithoutPdv:null,
+    sumWithPdv:null,
+    quantity:null
 
 
 }
 
 
-const initialProduct:Product={ 
-    categoryId:'',
-    productName:'',
-    productId:'',
-    measuringUnit:''
-}
 
 const initialVendor:Vendor={
     vendorId:'',
@@ -58,7 +53,7 @@ const initialVendor:Vendor={
       vendorIdentificationNumber: '',
       vendorPDVNumber: '',
       vendorCity: '',
-      vendorTelephoneNumber: [],
+      vendorTelephone: [],
       vendorEmail: [],
       vendorTransactionNumber: [],
       supportsAvans: false
@@ -75,10 +70,12 @@ const Invoices=()=>{
     const [newInvoice,setNewInvoice]=useState<Invoice>(initialInvoice)
     const [invoiceItems,setInvoiceItems]=useState<InvoiceItem[]>([])
 
-     const [dateOfIssue, setDateOfIssue] = useState<Dayjs|null>(dayjs());
+    const [dateOfIssue, setDateOfIssue] = useState<Dayjs|null>(dayjs());
     const [dateOfPayment, setDateOfPayment] = useState<Dayjs|null>(dayjs());
 
     const [productsData,setProductsData]=useState<Product[]>([])
+    const [stationaryProducts,setStationaryProducts]=useState<Product[]>([]) 
+    const [selectedProducts,setSelectedProducts]=useState<Product[]>([])
 
     const calculateTotals = (items: InvoiceItem[]) => {
         let totalWithoutPdv = 0;
@@ -86,12 +83,13 @@ const Invoices=()=>{
         let pdvValue = 0;
         
         items.forEach(item => {
-          const itemTotalWithoutPdv = item.priceWithoutPdv * item.quantity;
-          const itemTotalWithPdv = item.priceWithPdv * item.quantity;
-          totalWithoutPdv += itemTotalWithoutPdv 
-          totalWithPdv += itemTotalWithPdv 
+            if (item.priceWithoutPdv !== null && item.quantity !== null && item.priceWithPdv !== null) {
+                const itemTotalWithoutPdv = item.priceWithoutPdv * item.quantity;
+                const itemTotalWithPdv = item.priceWithPdv * item.quantity;
+                totalWithoutPdv += itemTotalWithoutPdv;
+                totalWithPdv += itemTotalWithPdv;
+            }
         });
-    
         pdvValue = totalWithPdv - totalWithoutPdv;
     
         setNewInvoice(prevInvoice => ({
@@ -110,6 +108,7 @@ const Invoices=()=>{
 
     const handleModalClose = () => {
         setIsModalOpen(false);
+        setProductsData(stationaryProducts)
     };
 
     const handleSelectedVendor=(vendor:Vendor)=>{
@@ -120,27 +119,34 @@ const Invoices=()=>{
        
     }
 
-    const handleAddInvoiceItem=()=>{
-        let newInvoiceItem:InvoiceItem={ invoiceId:'',
-        invoiceItemId:uuidv4(),
-        priceWithoutPdv:0,
-        priceWithPdv:0,
-        productCode:'',
-        productId:'',
-        discount:0,
-        sumWithoutPdv:0,
-        sumWithPdv:0,
-        quantity:0}
-        setInvoiceItems(prevItems=>{return [...prevItems,newInvoiceItem]})
-    }
+    const handleAddInvoiceItem = () => {
+        setInvoiceItems(prevItems => {
+            const newItem: InvoiceItem = {
+                ...initialInvoiceItem,
+                invoiceItemId: uuidv4() // Generate UUID when adding a new item
+            };
+            return [...prevItems, newItem];
+        });
+    };
 
-    const handleProductChange=(product:Product,index:number)=>{
-        setInvoiceItems(prevItems=>{
-            const updatedItems=[...prevItems]
-            updatedItems[index]={...updatedItems[index],productId:product.productId||''}
-            calculateTotals(updatedItems);
-            return updatedItems
+    const handleProductChange=(selectedProduct:Product,invoiceItemId:string)=>{
+        const updatedInvoiceItems = invoiceItems.map(item=>{
+            if(item.invoiceItemId!==invoiceItemId){return item}
+            else{
+                return {...item,productId:selectedProduct.productId||''}
+            }
         })
+        
+        const selectedProductsIds=updatedInvoiceItems.map(item=>{
+            return item.productId
+        })
+        const notPickedProducts = stationaryProducts.filter(product => {
+            return !selectedProductsIds.includes(product.productId ?? "");
+        });
+        
+        setInvoiceItems(updatedInvoiceItems)
+        setProductsData(notPickedProducts)
+        calculateTotals(updatedInvoiceItems)
     }
 
     
@@ -155,11 +161,12 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
 
     const handleProductCodeChange = (value: string, index: number) => {
         setInvoiceItems(prevItems => {
-            const updatedItems = [...prevItems];
-            updatedItems[index] = { ...updatedItems[index], productCode: value };
-            calculateTotals(updatedItems);
-            return updatedItems;
+            const updatedItems = [...prevItems]
+            updatedItems[index] = { ...updatedItems[index], productCode: value }
+            calculateTotals(updatedItems)
+            return updatedItems
         });
+
     };
 
     const handleQuantityChange = (value: number, index: number) => {
@@ -188,27 +195,74 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
         }
         
     }
+    const handleRemoveInvoiceItem = (itemToRemove: InvoiceItem) => {
+
+        const updatedInvoiceItems = invoiceItems.filter(item => item.invoiceItemId !== itemToRemove.invoiceItemId);
+      setInvoiceItems(updatedInvoiceItems)
+
+        // setProductsData(prevProducts=>{
+        //     let productToAdd=stationaryProducts.find(product=>product.productId===itemToRemove.productId)
+        //     if (productToAdd){
+        //         let updatedProducts=[...prevProducts,productToAdd]
+        //     return updatedProducts
+        //     } else {
+        //         return prevProducts
+        //     }
+            
+        // })
+
+        const selectedProductsIds=updatedInvoiceItems.map(item=>{
+            return item.productId
+        })
+        const notPickedProducts = stationaryProducts.filter(product => {
+            return !selectedProductsIds.includes(product.productId ?? "");
+        });
+
+        setProductsData(notPickedProducts)
+
+        calculateTotals(updatedInvoiceItems);
+    };
 
     const handleSubmit =async () => {
 
         
        
         if (!selectedVendor) {
-            alert("Please select a vendor");
+            toast("Please select a vendor");
             return;
         }
 
-      
-        const emptyFields = invoiceItems.some(
-            (item) =>
-                !item.productId ||
-                !item.priceWithoutPdv ||
-                !item.quantity ||
-                !item.discount
+        if(invoiceItems.length==0){
+            toast('Please, add invoice items')
+            return
+        }
+
+        const emptyFields = invoiceItems.some(item =>
+            !item.productId ||
+            item.productCode.trim() === '' ||
+            item.priceWithoutPdv==null ||
+            item.quantity==null ||
+            item.discount==null
         );
+        
+
         if (emptyFields) {
-            alert("Please fill in all fields for invoice items");
+            toast("Please fill in all fields for invoice items");
             return;
+        }
+
+        const quantityValidator=invoiceItems.some(item=>{
+            if(item.quantity!=null){
+                if(item.quantity<1){
+                    return true
+                }
+            }
+        }
+        )
+
+        if(quantityValidator){
+            toast("Quantity must be 1 or more ")
+            return
         }
 
        
@@ -238,6 +292,7 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
       setIsModalOpen(false);
       fetchInvoices(setInvoicesData)
       setNewInvoice(initialInvoice)
+      setProductsData(stationaryProducts)
 
     } catch (error) {
       console.error("Error submitting invoice:", error);
@@ -250,6 +305,7 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
         fetchVendors(setVendorData)
         fetchProducts(setProductsData)
         fetchInvoices(setInvoicesData)
+        fetchProducts(setStationaryProducts)
     },[])
 
 
@@ -261,7 +317,7 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
                 <> {deleteFlag? 
                 <div style={{width:'50px',height:"20px"}}>
                     <Button size='small' onClick={()=>{handleDeleteInvoice(invoice)}}>
-                        <DeleteIcon sx={{color:'#32675B'}}/>
+                        <DeleteIcon sx={{color:'red'}}/>
                     </Button>
                 </div>
                 : <div style={{width:'50px',height:"20px"}}>
@@ -341,24 +397,59 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
                 
                 </Box>
                 <Button sx={{alignSelf:'flex-end',margin:'10px',fontSize:'12px',fontWeight:'bold'}} variant="contained" onClick={()=>{handleAddInvoiceItem()}}>Add new Invoice item</Button>
-                {invoiceItems.map((_item,index)=>{
-                    return <Box key={index} sx={{margin:'5px',display:'flex',flexWrap:'wrap',justifyContent:'flex-start',alignItems:'center',gap:'10px',border:'1px solid grey',borderRadius:'10px',padding:'5px'}}>
-                    <Autocomplete key={index} options={productsData} 
+               
+                {invoiceItems.map((item,index)=>{
+                    return <Box key={item.invoiceItemId} sx={{margin:'5px',display:'flex',flexWrap:'wrap',justifyContent:'flex-start',alignItems:'center',gap:'10px',border:'1px solid grey',borderRadius:'10px',padding:'5px'}}>
+                    <Autocomplete key={`${item.invoiceItemId}-product`} options={productsData} 
                         renderInput={(params)=><TextField {...params} label='Product'></TextField>}
                         getOptionLabel={(option)=>option.productName}
                         onChange={(_e,newValue)=>{
-                            if(newValue) handleProductChange(newValue,index)}
+                            if(newValue) handleProductChange(newValue,item.invoiceItemId)}
                         }
 
                         sx={{backgroundColor:'white',marginTop:'10px',fontSize:'12px',width:'200px'}}
                     />
                     
 
-                    <TextField label='Product Code'  onChange={(e) => handleProductCodeChange(e.target.value, index)} sx={{backgroundColor:'white',marginTop:'10px',fontSize:'12px',width:'150px'}}></TextField>
-                    <TextField label='Price Without PDV' type='number' onChange={(e) => handlePriceWithoutPdvChange(parseFloat(e.target.value), index)} sx={{backgroundColor:'white',marginTop:'10px',width:'150px'}}></TextField>
-                    <TextField label='Quantity' type='number' onChange={(e) => handleQuantityChange(parseFloat(e.target.value), index)} sx={{backgroundColor:'white',marginTop:'10px',width:'150px'}}></TextField>
-                    <TextField label='Discount' type='number' onChange={(e) => handleDiscountChange(parseFloat(e.target.value), index)} sx={{backgroundColor:'white',marginTop:'10px',width:'150px'}}></TextField>
-                   
+                    <TextField label='Product Code'  
+                        onChange={(e) =>handleProductCodeChange(e.target.value, index)}
+                        sx={{backgroundColor:'white',marginTop:'10px',fontSize:'12px',width:'150px'}}>
+                    </TextField>
+                    <TextField label='Price Without PDV' type='number'
+                    onKeyDown={(e)=>{
+                        if (e.key === 'e' || e.key === 'E') {
+                            e.preventDefault();
+                        }
+                    }}
+                        onChange={(e) => handlePriceWithoutPdvChange(parseFloat(e.target.value), index)} 
+                        sx={{backgroundColor:'white',marginTop:'10px',width:'150px'}}>
+                        </TextField>
+                    <TextField label='Quantity' type='number' 
+                    onKeyDown={(e)=>{
+                        if (e.key === 'e' || e.key === 'E') {
+                            e.preventDefault();
+                        }
+                    }}
+                        onChange={(e) => handleQuantityChange(parseFloat(e.target.value), index)} 
+                        sx={{backgroundColor:'white',marginTop:'10px',width:'150px'}}> 
+                    </TextField>
+                    <TextField label='Discount' type='number' 
+                    onKeyDown={(e)=>{
+                        if (e.key === 'e' || e.key === 'E') {
+                            e.preventDefault();
+                        }
+                    }}
+                        onChange={(e) => {
+                            
+                            handleDiscountChange(parseFloat(e.target.value), index)}
+                        } 
+                        sx={{backgroundColor:'white',marginTop:'10px',width:'150px'}}>  
+                    </TextField>
+                    <Box sx={{flexGrow:'4',display:'flex',justifyContent:'flex-end',paddingRight:'30px'}}>
+                        <Button variant="contained" sx={{backgroundColor:'red',borderRadius:'100px'}}
+                        onClick={()=>{handleRemoveInvoiceItem(item)}}>X</Button>
+                    </Box>
+                  
                     </Box>
             })}
             </Box>
@@ -375,7 +466,7 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
             {<GenericTable config={config} data={invoicesData}></GenericTable>}
 
             <Box sx={{  marginTop: '20px' }}>
-            <Button variant="contained" color="secondary" style={{ marginLeft: '10px',backgroundColor:"#32675B" }} onClick={()=>{setDeleteFlag(!deleteFlag)}}>Delete Invoice</Button>
+            <Button variant="contained" color="secondary" style={deleteFlag?{marginLeft: '10px',backgroundColor:"red"}:{ marginLeft: '10px',backgroundColor:"#32675B" }} onClick={()=>{setDeleteFlag(!deleteFlag)}}>Delete Invoice</Button>
         </Box>
         </Box>
         </Box>
