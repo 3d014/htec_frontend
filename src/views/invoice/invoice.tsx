@@ -22,6 +22,7 @@ import InvoiceOverview from "../../components/invoiceOverview/invoiceOverview";
 const initialInvoice:Invoice={
     invoiceId:'',
     vendorId:'',
+    invoiceNumber:'',
     dateOfIssue:new Date(),
     dateOfPayment:new Date(),
     totalValueWithoutPdv:0,
@@ -245,12 +246,17 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
             return
         }
 
+        if(newInvoice.invoiceNumber==''||newInvoice.invoiceNumber==null){
+            toast('Please add Invoice Number')
+            return
+        }
+
         const emptyFields = invoiceItems.some(item =>
             !item.productId ||
             item.productCode.trim() === '' ||
-            item.priceWithoutPdv==null ||
-            item.quantity==null ||
-            item.discount==null
+            item.priceWithoutPdv==null ||  Number.isNaN(item.priceWithoutPdv) ||
+            item.quantity==null ||  Number.isNaN(item.quantity) ||
+            item.discount==null || Number.isNaN(item.discount)
         );
         
 
@@ -276,10 +282,11 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
        
 
         try {
-            const newInvoiceId=uuidv4()
-      const updatedInvoice: Invoice = {
+        const newInvoiceId=uuidv4()
+        const updatedInvoice: Invoice = {
         vendorId: selectedVendor.vendorId,
         invoiceId: newInvoiceId,
+        invoiceNumber:newInvoice.invoiceNumber,
         dateOfIssue:dateOfIssue?dateOfIssue.toDate():new Date() ,
         dateOfPayment:dateOfPayment?dateOfPayment.toDate():new Date(),
         totalValueWithoutPdv: newInvoice.totalValueWithoutPdv   ,
@@ -324,6 +331,10 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
         setSelectedInvoice(invoice)
 
 
+    }
+    const handleInvoiceNumberChange=(e:React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>)=>{
+        const updatedInvoice={...newInvoice,invoiceNumber:e.target.value}
+        setNewInvoice(updatedInvoice)
     }
 
     useEffect(()=>{
@@ -374,8 +385,8 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
         },
         
         {
-            getHeader:()=>'Invoice id',
-            getValue:(invoice:Invoice)=>invoice.invoiceId  
+            getHeader:()=>'Invoice Number',
+            getValue:(invoice:Invoice)=>invoice.invoiceNumber
         },
         {
             getHeader:()=>'Vendor name',
@@ -426,6 +437,11 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
 
                 ></Autocomplete> 
 
+                <TextField label='Invoice Number' placeholder="Invoice Number"  sx={{margin:'5px', backgroundColor:'white'}}
+                value={newInvoice.invoiceNumber}
+                onChange={(e)=>{handleInvoiceNumberChange(e)}}
+                ></TextField>
+
                 <Box sx={{width:'100%', display:'flex',justifyContent:'space-between'}}> 
                 <DatePicker 
                     label='Date of issue' 
@@ -450,6 +466,7 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
           }} sx={{marginTop:'10px',backgroundColor:'white'}}></TextField>
                 
                 </Box>
+                
                 <Button sx={{alignSelf:'flex-end',margin:'10px',fontSize:'12px',fontWeight:'bold'}} variant="contained" onClick={()=>{handleAddInvoiceItem()}}>Add new Invoice item</Button>
                
                 {invoiceItems.map((item,index)=>{
@@ -494,7 +511,7 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
                         }
                     }}
                         onChange={(e) => {
-                            
+                            console.log(parseFloat(e.target.value))
                             handleDiscountChange(parseFloat(e.target.value), index)}
                         } 
                         sx={{backgroundColor:'white',marginTop:'10px',width:'150px'}}>  

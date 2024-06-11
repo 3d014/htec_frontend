@@ -106,7 +106,7 @@ const Products = () => {
 
     return (<Box sx={isMatch?styles.largerScreen.body:styles.smallerScreen.body}>
         <Box sx={isMatch?styles.largerScreen.proizvodi:styles.smallerScreen.proizvodi}> Proizvodi </Box>
-        <Box sx={{width:'100%', display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
+        <Box sx={{width:'90%',margin:'30px', display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
        
             {<GenericTable data={productsData} config={config}/>}  
            

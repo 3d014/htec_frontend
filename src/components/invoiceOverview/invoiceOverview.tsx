@@ -131,6 +131,7 @@ const InvoiceOverview=({ invoice ,isOpen,onClose,vendors,products }: InvoiceOver
             <Box>
             <div>Date of Issue : <span>{dayjs(invoice.dateOfIssue).format('DD.MM.YYYY')}</span> </div>
             <div>Date of payment : <span>{dayjs(invoice.dateOfPayment).format('DD.MM.YYYY')}</span> </div>
+            <div style={{fontSize:'20px',marginTop:'10px'}}>Invoice Number: <span>{invoice.invoiceNumber}</span></div>
             </Box>
             <Box>
                 <div style={{fontSize:'24px'}}>HTEC doo Sarajevo</div>
