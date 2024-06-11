@@ -17,7 +17,7 @@ const initialCategory:Category={
 }
 const Categories=()=>{
    
-    const [deleteFlag,_setDeleteFlag]=useState(false)
+    const [deleteFlag,setDeleteFlag]=useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentCategory, setCurrentCategory] = useState<Category>(initialCategory)
     const [categoriesData,setCategoriesData]=useState<Category[]>([initialCategory])
@@ -69,7 +69,7 @@ const Categories=()=>{
             await axiosInstance.delete('/api/categories',{headers:{Authorization:localStorage.getItem('token')},data:{categoryId}})
             const filteredCategories: Category[] = categoriesData.filter(item => category.categoryId !== item.categoryId)
             setCategoriesData(filteredCategories)
-            _setDeleteFlag(!deleteFlag)
+            setDeleteFlag(!deleteFlag)
         }
         
     }
@@ -95,7 +95,7 @@ const Categories=()=>{
          (_Category:Category) =>
          <> {deleteFlag? <div style={{width:'50px',height:"20px"}}>
             <Button size='small' onClick={()=>{handleDeleteCategory(_Category)}}>
-                <DeleteIcon sx={{color:'#32675B'}}/>
+                <DeleteIcon sx={{color:'#A82B24'}}/>
             </Button></div> :
             <div style={{width:'50px',height:"20px"}}>
                 <Button size='small' onClick={()=>{handleEditCategory(_Category)}}>
@@ -113,7 +113,7 @@ const Categories=()=>{
             <GenericTable config={config} data={categoriesData}></GenericTable>
             <Box sx={{margin:'5px',display:'flex',gap:'10px'}}>
                 <Button variant='contained' sx={{backgroundColor:"#32675B"}} onClick={handleAddCategory}>Add</Button>
-                <Button variant='contained' sx={{backgroundColor:"#32675B"}} onClick={() => {_setDeleteFlag(!deleteFlag)}}>Delete</Button>
+                <Button variant='contained' sx={deleteFlag?{backgroundColor:"#A82B24"}:{backgroundColor:"#32675B"}} onClick={() => {setDeleteFlag(!deleteFlag)}}>Delete</Button>
             </Box>
         </Box>
 

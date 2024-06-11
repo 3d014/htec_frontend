@@ -17,14 +17,15 @@ import fetchInvoices from "../../utils/fetchFunctions/fetchInvoices";
 import { Columns } from "../../models/columns";
 import dayjs, { Dayjs } from "dayjs";
 import { toast } from "react-toastify";
+import InvoiceOverview from "../../components/invoiceOverview/invoiceOverview";
 
 const initialInvoice:Invoice={
     invoiceId:'',
     vendorId:'',
     dateOfIssue:new Date(),
     dateOfPayment:new Date(),
-    TotalValueWithoutPdv:0,
-    TotalValueWithPdv:0,
+    totalValueWithoutPdv:0,
+    totalValueWithPdv:0,
     pdvValue:0,
     invoiceItems:[]
 }
@@ -39,7 +40,7 @@ const initialInvoiceItem:InvoiceItem={
     discount:null,
     sumWithoutPdv:null,
     sumWithPdv:null,
-    quantity:null
+    quantity:1
 
 
 }
@@ -61,12 +62,15 @@ const initialVendor:Vendor={
 
 const Invoices=()=>{
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [overviewModalFlag,setoverviewModalFlag]=useState(true)
     const [vendorData,setVendorData]=useState<Vendor[]>([])
     const [selectedVendor,setSelectedVendor]=useState<Vendor>()
     const [deleteFlag,setDeleteFlag]=useState(false)
+    const [isInvoiceShown,setIsInvoiceShown]=useState(false)
 
     const [invoicesData,setInvoicesData]=useState<Invoice[]>([])
 
+    const [selectedInvoice,setSelectedInvoice]=useState<Invoice|null>(null)
     const [newInvoice,setNewInvoice]=useState<Invoice>(initialInvoice)
     const [invoiceItems,setInvoiceItems]=useState<InvoiceItem[]>([])
 
@@ -75,7 +79,10 @@ const Invoices=()=>{
 
     const [productsData,setProductsData]=useState<Product[]>([])
     const [stationaryProducts,setStationaryProducts]=useState<Product[]>([]) 
-    const [selectedProducts,setSelectedProducts]=useState<Product[]>([])
+    const [_selectedProducts,_setSelectedProducts]=useState<Product[]>([])
+    
+
+    
 
     const calculateTotals = (items: InvoiceItem[]) => {
         let totalWithoutPdv = 0;
@@ -110,7 +117,7 @@ const Invoices=()=>{
         setIsModalOpen(false);
         setProductsData(stationaryProducts)
     };
-
+ 
     const handleSelectedVendor=(vendor:Vendor)=>{
         setSelectedVendor(vendor)
         setNewInvoice((prevInvoice)=>({
@@ -192,6 +199,7 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
             const filteredInvoices:Invoice[]=invoicesData.filter(item=>invoice.invoiceId!==item.invoiceId)
             setInvoicesData(filteredInvoices)
             setDeleteFlag(!deleteFlag)
+            setoverviewModalFlag(true)
         }
         
     }
@@ -268,16 +276,21 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
        
 
         try {
-            
+            const newInvoiceId=uuidv4()
       const updatedInvoice: Invoice = {
         vendorId: selectedVendor.vendorId,
-        invoiceId: '',
+        invoiceId: newInvoiceId,
         dateOfIssue:dateOfIssue?dateOfIssue.toDate():new Date() ,
         dateOfPayment:dateOfPayment?dateOfPayment.toDate():new Date(),
-        TotalValueWithoutPdv: newInvoice.TotalValueWithoutPdv   ,
-        TotalValueWithPdv: newInvoice.TotalValueWithPdv,
+        totalValueWithoutPdv: newInvoice.totalValueWithoutPdv   ,
+        totalValueWithPdv: newInvoice.totalValueWithPdv,
         pdvValue: newInvoice.pdvValue,
-        invoiceItems: invoiceItems
+        invoiceItems: invoiceItems.map(item=>({
+            ...item,
+            invoiceId:newInvoiceId,
+            sumWithoutPdv:item.priceWithoutPdv !== null ? item.priceWithoutPdv * (item.quantity || 0) : null,
+            sumWithPdv:item.priceWithPdv !== null ? item.priceWithPdv * (item.quantity || 0) : null
+        }))
       };
 
       await axiosInstance.post('/api/invoices', updatedInvoice, {
@@ -300,6 +313,18 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
 
 
     }
+    const handleInvoiceOverviewClose=()=>{
+        setIsInvoiceShown(false)
+        setSelectedInvoice(null)
+    }
+
+
+    const  handleShowInvoice=(invoice:Invoice)=>{
+        setIsInvoiceShown(true)
+        setSelectedInvoice(invoice)
+
+
+    }
 
     useEffect(()=>{
         fetchVendors(setVendorData)
@@ -314,14 +339,38 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
         {
             getHeader:() => 'Settings',
             getValue: (invoice: Invoice) =>
-                <> {deleteFlag? 
-                <div style={{width:'50px',height:"20px"}}>
-                    <Button size='small' onClick={()=>{handleDeleteInvoice(invoice)}}>
-                        <DeleteIcon sx={{color:'red'}}/>
-                    </Button>
-                </div>
-                : <div style={{width:'50px',height:"20px"}}>
-                    </div>}</>
+                <>
+                {
+                overviewModalFlag?
+                (
+                    <div style={{width:'50px',height:"20px"}}>
+                        <Button size='small' variant="outlined" style={{color:'white',backgroundColor:'#32675B'}} onClick={()=>{handleShowInvoice(invoice)}}>
+                       Show
+                        </Button>
+                    </div>
+            )
+
+                :(deleteFlag? 
+                    <div style={{width:'50px',height:"20px"}}>
+                        <Button size='small' onClick={()=>{handleDeleteInvoice(invoice)}}>
+                            <DeleteIcon sx={{color:'#A82B24'}}/>
+                        </Button>
+                    </div>
+                    : <div style={{width:'50px',height:"20px"}}>
+                        </div>)
+                }
+                
+                 {/* {
+                    deleteFlag? 
+                    <div style={{width:'50px',height:"20px"}}>
+                        <Button size='small' onClick={()=>{handleDeleteInvoice(invoice)}}>
+                            <DeleteIcon sx={{color:'red'}}/>
+                        </Button>
+                    </div>
+                    : <div style={{width:'50px',height:"20px"}}>
+                        </div>
+                } */}
+                </>
         },
         
         {
@@ -353,11 +402,16 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
             <h1>Invoices</h1>
         </Box>
 
-        <Box sx={{display:'flex',alignItems:'center',justifyContent:'flex-end',margin:'20px'}}>
+        <Box sx={{display:'flex',alignItems:'flex-end',justifyContent:'center',margin:'20px',flexDirection:'column',gap:'10px'}}>
         
-        <Button variant={'contained'} onClick={handleAddNewInvoice} >Add new invoice</Button>
-            
+        <Button sx={{width:'200px'}} variant={'contained'} onClick={handleAddNewInvoice} >Add new invoice</Button>
+        
         </Box>
+
+        {selectedInvoice && <InvoiceOverview isOpen={isInvoiceShown} onClose={handleInvoiceOverviewClose} invoice={selectedInvoice}
+        vendors={vendorData}
+        products={productsData} />}
+     
         
         <GenericModal isOpen={isModalOpen} onClose={handleModalClose}>
             <Box sx={{display:'flex',flexDirection:'column'}}>
@@ -388,10 +442,10 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
                 />
                 </Box>
                 <Box sx={{width:'100%', display:'flex',justifyContent:'space-between'}}>
-                    <TextField label='Total value without PDV' placeholder="Total value without PDV" value={newInvoice.TotalValueWithoutPdv} InputProps={{
+                    <TextField label='Total value without PDV' placeholder="Total value without PDV" value={newInvoice.totalValueWithoutPdv} InputProps={{
             readOnly: true,
           }} sx={{marginTop:'10px',backgroundColor:'white'}}></TextField>
-                    <TextField label='Total value with PDV' placeholder="Total value with PDV" value={newInvoice.TotalValueWithPdv} InputProps={{
+                    <TextField label='Total value with PDV' placeholder="Total value with PDV" value={newInvoice.totalValueWithPdv} InputProps={{
             readOnly: true,
           }} sx={{marginTop:'10px',backgroundColor:'white'}}></TextField>
                 
@@ -461,13 +515,18 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
             <Button onClick={handleSubmit}>Submit</Button>
         </GenericModal>  
 
+   
+
         <Box sx={{width:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>
-            <Box >
+            <Box sx={{width:'80%'}} >
             {<GenericTable config={config} data={invoicesData}></GenericTable>}
 
             <Box sx={{  marginTop: '20px' }}>
-            <Button variant="contained" color="secondary" style={deleteFlag?{marginLeft: '10px',backgroundColor:"red"}:{ marginLeft: '10px',backgroundColor:"#32675B" }} onClick={()=>{setDeleteFlag(!deleteFlag)}}>Delete Invoice</Button>
+            <Button variant="contained" color="secondary" style={deleteFlag?{marginLeft: '10px',backgroundColor:"#A82B24"}:{ marginLeft: '10px',backgroundColor:"#32675B" }} onClick={()=>{
+                setoverviewModalFlag(!overviewModalFlag)
+                setDeleteFlag(!deleteFlag)}}>Delete Invoice</Button>
         </Box>
+
         </Box>
         </Box>
         

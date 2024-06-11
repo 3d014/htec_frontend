@@ -33,7 +33,7 @@ const Products = () => {
             <> {deleteFlag? 
             <div style={{width:'50px',height:"20px"}}>
                 <Button size='small' onClick={()=>{handleDeleteProduct(product)}}>
-                    <DeleteIcon sx={{color:'red'}}/>
+                    <DeleteIcon sx={{color:'#A82B24'}}/>
                 </Button>
             </div>
             : <div style={{width:'50px',height:"20px"}}>
@@ -115,7 +115,7 @@ const Products = () => {
            
             <Box sx={{  marginTop: '20px' }}>
                     <Button variant="contained"  style={{ marginLeft: '10px',backgroundColor:"#32675B" }} onClick={handleAddProduct}>Add Product</Button>
-                    <Button variant="contained" color="secondary" style={deleteFlag?{marginLeft: '10px',backgroundColor:"red" }:{ marginLeft: '10px',backgroundColor:"#32675B" }} onClick={()=>{setDeleteFlag(!deleteFlag)}}>Delete Product</Button>
+                    <Button variant="contained" color="secondary" style={deleteFlag?{marginLeft: '10px',backgroundColor:"#A82B24" }:{ marginLeft: '10px',backgroundColor:"#32675B" }} onClick={()=>{setDeleteFlag(!deleteFlag)}}>Delete Product</Button>
                 </Box>
         </Box>
       

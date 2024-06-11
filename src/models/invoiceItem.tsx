@@ -3,7 +3,7 @@ interface InvoiceItem{
     invoiceId:string,
     productCode:string,
     productId:string,
-    quantity:number|null,
+    quantity:number,
     priceWithoutPdv:number|null,
     priceWithPdv:number|null,
     sumWithoutPdv:number|null,
