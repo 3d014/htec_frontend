@@ -101,8 +101,8 @@ const Invoices=()=>{
     
         setNewInvoice(prevInvoice => ({
           ...prevInvoice,
-          TotalValueWithoutPdv: totalWithoutPdv,
-          TotalValueWithPdv: totalWithPdv,
+          totalValueWithoutPdv: totalWithoutPdv,
+          totalValueWithPdv: totalWithPdv,
           pdvValue: pdvValue
         }));
       };
