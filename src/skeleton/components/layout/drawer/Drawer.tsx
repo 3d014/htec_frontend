@@ -1,8 +1,8 @@
 import useAuth from "../../../../hooks/useAuth";
 import RoutesData from "../../../../providers/routeProvider";
 import { List, ListItem, ListItemText, Drawer as MuiDrawer } from "@mui/material";
-import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
 interface DrawerProps {
     isDrawerOpen: boolean;
@@ -15,6 +15,16 @@ const Drawer: React.FC<DrawerProps> = ({ isDrawerOpen, toggleDrawer }) => {
     const [hoveredItem, setHoveredItem] = useState<string>(''); // State to track hovered item
     const navigationItems = RoutesData.filter(route => route.isNavigation && route.roles.some(role => auth?.roles?.includes(role)));
     const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        const currentRoute = RoutesData.find(route => route.path === location.pathname);
+        if (currentRoute && currentRoute.isNavigation) {
+            setSelectedItem(currentRoute.path);
+        } else {
+            setSelectedItem('');
+        }
+    }, [location.pathname]);
 
     const handleItemClick = (path: string) => {
         setSelectedItem(path);
@@ -84,3 +94,4 @@ const Drawer: React.FC<DrawerProps> = ({ isDrawerOpen, toggleDrawer }) => {
 };
 
 export default Drawer;
+

@@ -1,16 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { List, ListItem, ListItemText } from "@mui/material";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import useAuth from "../../../../hooks/useAuth";
 import RoutesData from "../../../../providers/routeProvider";
 
 const Navigation = () => {
     const { auth } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const navigationItems = RoutesData.filter(route => route.isNavigation && route.roles.some(role => auth?.roles?.includes(role)));
 
     const [selectedItem, setSelectedItem] = useState<string | null>(null);
+
+    useEffect(() => {
+        const currentRoute = RoutesData.find(route => route.path === location.pathname);
+        if (currentRoute && currentRoute.isNavigation) {
+            setSelectedItem(currentRoute.routeName);
+        } else {
+            setSelectedItem(null);
+        }
+    }, [location.pathname]);
 
     const handleItemClick = (path: string, itemName: string) => {
         setSelectedItem(itemName);
