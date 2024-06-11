@@ -3,8 +3,8 @@ interface Invoice{
    vendorId:string,
    dateOfIssue:Date,
    dateOfPayment:Date,
-   TotalValueWithoutPdv:Number,
-   TotalValueWithPdv:Number,
+   totalValueWithoutPdv:Number,
+   totalValueWithPdv:Number,
    pdvValue:Number,
    invoiceItems:InvoiceItem[]
 }
