@@ -34,15 +34,25 @@
       const [isEditModalOpen, setIsEditModalOpen] = useState(false)
       const [currentEmailValue,setCurrentEmailValue]=useState<string>('')
       const [currentPhoneNumber, setCurrentPhoneNumber] = useState<string>("");
+      const [currentTransactionNumber, setCurrentTransactionNumber] = useState<string>("");
+      const [newVendor,setNewVendor]=useState<Vendor>(initialVendor)
 
       function handleAddEmail(newEmail:string){
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         
-          if(newEmail) setNewVendor((prevVendor) => ({ ...prevVendor, vendorEmail: [...prevVendor.vendorEmail, newEmail] }))
-        
-      }
+        if(newEmail && emailRegex.test(newEmail)) {
+            setNewVendor((prevVendor) => ({ ...prevVendor, vendorEmail: [...prevVendor.vendorEmail, newEmail] }));
+        } else {
+            toast.error("Invalid email format");
+        }
+    }
       const handleModalClose = () => {
           setIsModalOpen(false);
           setIsEditModalOpen(false)
+          setCurrentEmailValue('')
+          setCurrentPhoneNumber('')
+          setCurrentTransactionNumber('')
+
       };
 
       const handleAddVendor = () => {
@@ -66,14 +76,14 @@
           
 
       
-      const [currentTransactionNumber, setCurrentTransactionNumber] = useState<string>("");
+     
 
   function handleAddTransactionNumber(newTransactionNumber: string) {
       if(newTransactionNumber) setNewVendor((prevVendor) => ({ ...prevVendor, vendorTransactionNumber: [...prevVendor.vendorTransactionNumber, newTransactionNumber] }))
   }
 
 
-  const [newVendor,setNewVendor]=useState<Vendor>(initialVendor)
+  
   
   const handleDeleteVendor = async (vendor: Vendor) => {
           const { vendorId } = vendor; 

@@ -34,7 +34,7 @@ const Categories=()=>{
     
 
     const handleSubmitCategory=async ()=>{
-        if(categoriesData.map(category=>category.categoryName.toLowerCase()).includes(newCategory.categoryName)){
+        if(categoriesData.map(category=>category.categoryName.toLowerCase()).includes(newCategory.categoryName.toLowerCase())){
             toast('Category with that name already exists')
             return
         }
@@ -54,11 +54,18 @@ const Categories=()=>{
 
     const handleSaveEditCategory = async (newCategory: Category) => {
       
-        
+        if(categoriesData.map(category=>category.categoryName.toLowerCase()).includes(newCategory.categoryName.toLowerCase())){
+            toast('Category with that name already exists')
+            return
+        }
         try {
             await axiosInstance.put('/api/categories', newCategory, {
                 headers: { Authorization: localStorage.getItem('token') }
             })
+            fetchCategories(setCategoriesData)
+            setNewCategory(initialCategory)
+            setIsEditModalOpen(false)
+            
         } catch(error) {
             console.error('Error saving vendor:', error)
         }
