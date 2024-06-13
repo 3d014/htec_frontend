@@ -95,8 +95,13 @@
                   });
                   const filteredVendors: Vendor[] = vendorData.filter(item => item.vendorId !== vendorId);
                   setVendorData(filteredVendors);
-              } catch (error) {
+              } catch (error:any) {
+                if(error.response.status==409){
+                  toast(error.response.data.message)
+                } else{
                   console.error('Error deleting vendor:', error);
+                }
+                  
               }
           }
       };
