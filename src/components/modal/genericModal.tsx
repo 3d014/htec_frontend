@@ -1,4 +1,4 @@
-import { Box, Dialog, useMediaQuery } from "@mui/material"
+import { Box, Button, Dialog, useMediaQuery } from "@mui/material"
 
 import styles from "./modal.styles"
 
@@ -16,6 +16,7 @@ const genericModal: React.FC<ModalProps> = ({ isOpen, onClose,children })=>{
     
 
     return <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth='md' sx={{display:'flex',justifyContent:'center',alignItems:'center'}} >
+       <Button sx={{alignSelf:'flex-end',width:'100px'}}>Close</Button>
         <Box sx={isSmallScreen?styles.smallerScreen.modal : styles.largerScreen.modal}>
             {children} 
         </Box> 

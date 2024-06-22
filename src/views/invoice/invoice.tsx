@@ -511,7 +511,7 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
                         }
                     }}
                         onChange={(e) => {
-                            console.log(parseFloat(e.target.value))
+                           
                             handleDiscountChange(parseFloat(e.target.value), index)}
                         } 
                         sx={{backgroundColor:'white',marginTop:'10px',width:'150px'}}>  
