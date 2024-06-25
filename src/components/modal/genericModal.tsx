@@ -16,7 +16,7 @@ const genericModal: React.FC<ModalProps> = ({ isOpen, onClose,children })=>{
     
 
     return <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth='md' sx={{display:'flex',justifyContent:'center',alignItems:'center'}} >
-       <Button sx={{alignSelf:'flex-end',width:'100px'}}>Close</Button>
+       <Button sx={{alignSelf:'flex-end',width:'100px'}} onClick={onClose}>Close</Button>
         <Box sx={isSmallScreen?styles.smallerScreen.modal : styles.largerScreen.modal}>
             {children} 
         </Box> 

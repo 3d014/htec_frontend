@@ -25,8 +25,8 @@ const Navigation = () => {
         }
     }, [location.pathname]);
 
-    return (
-        <List sx={{ width: '100%', height: '100%', backgroundColor: "#FFFFFF", borderRight: '1px solid', color: '#000000', padding: '10px' }}>
+    return (<>
+        <List sx={{  height: '100%', backgroundColor: "#FFFFFF", borderRight: '1px solid', color: '#000000', padding: '10px' }}>
             {navigationItems.map(item => (
                 <ListItem 
                 sx={{ 
@@ -65,6 +65,7 @@ const Navigation = () => {
             </ListItem>
             ))}
         </List>
+        </>
     );
 }
 

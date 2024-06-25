@@ -22,9 +22,9 @@ const Layout=({ children }: { children: ReactNode })=>{
     {/* </Grid> */}
 
 
-        <Box sx={{display:'flex',width:'100%    '}}>
-            {isMatch?<Box sx={isMatch?{width:'20%',backgroundColor:'grey',height:'100vh'}:{}}><Navigation></Navigation></Box>:<></>}
-            <Box sx={isMatch?{backgroundColor:'white',width:'80%'}:{backgroundColor:'white',width:'100%'}}>{children}</Box>
+        <Box sx={{display:'flex',flexDirection:'row'}}>
+            {isMatch?<Box sx={isMatch?{backgroundColor:'grey',height:'100vh',width:'25%'}:{}}><Navigation></Navigation></Box>:<></>}
+            <Box sx={isMatch?{backgroundColor:'white',width:'75%'}:{backgroundColor:'white',width:'100%'}}>{children}</Box>
 
         </Box>
     </Box>
