@@ -48,6 +48,11 @@ const Budgets = () => {
     const [allowedBudget, setAllowedBudget] = useState<number|string>('');
     const [isConfirmationOpen, setIsConfirmationOpen] = useState<boolean>(false);
     const [ selectedBudget,setSelectedBudget]=useState<Budget>(initialBudget)
+    const [budgetExists,setBudgetExists]=useState<boolean>(false)
+
+    const [isChangeBudgetOpen, setIsChangeBudgetOpen] = useState<boolean>(false);
+const [newTotalBudget, setNewTotalBudget] = useState<number | string>('');
+
     useEffect(() => {
         fetchVendors(setVendors);
         fetchBudget(setBudget);
@@ -55,7 +60,7 @@ const Budgets = () => {
 
     useEffect(() => {
         
-        fetchBudgetForMonthYear(selectedYear, selectedMonth, setSelectedBudget);
+        fetchBudgetForMonthYear(selectedYear, selectedMonth, setSelectedBudget,setBudgetExists);
     }, [selectedMonth, selectedYear]);
 
 
@@ -86,7 +91,8 @@ const Budgets = () => {
                 headers: { Authorization: localStorage.getItem('token') }
               });
             setIsConfirmationOpen(false);
-            setIsAddingBudget(false); // Ensure the budget modal is closed
+            setIsAddingBudget(false); 
+            fetchBudgetForMonthYear(selectedYear, selectedMonth, setSelectedBudget,setBudgetExists)
         } catch (error) {
             console.error("Error updating budget:", error);
         }
@@ -110,6 +116,30 @@ const Budgets = () => {
         const value = event.target.value;
         setAllowedBudget(value === '' ? '' : parseFloat(value));
     };
+
+    const handleOpenChangeBudget = () => {
+        setIsChangeBudgetOpen(true);
+    };
+    const handleNewTotalBudgetChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value;
+        setNewTotalBudget(value === '' ? '' : parseFloat(value));
+    };
+    const handleChangeBudget = async () => {
+        try {
+            let totalBudget=newTotalBudget
+            await axiosInstance.put(`/api/budget/${selectedYear}/${selectedMonth}`, { totalBudget },{
+                headers: { Authorization: localStorage.getItem('token') }
+              });
+            setIsChangeBudgetOpen(false);
+            fetchBudgetForMonthYear(selectedYear, selectedMonth, setSelectedBudget, setBudgetExists);
+        } catch (error) {
+            console.error("Error changing budget:", error);
+        }
+    };
+    const handleCancelChangeBudget = () => {
+        setIsChangeBudgetOpen(false);
+    };
+                
 
     return (
         <>
@@ -143,6 +173,7 @@ const Budgets = () => {
                     </Select>
                 </Box>
                 <Button variant="contained" disabled={!isCurrentDate} sx={{ backgroundColor: '#32675B' }} onClick={() => { setIsAddingBudget(true) }}>Add Allowed Budget</Button>
+                
                 <GenericModal isOpen={isAddingBudget} onClose={() => { setIsAddingBudget(false) }}>
                     <Typography sx={{ color: 'black', fontSize: '24px', fontWeight: 'bold' }}>{`You are adding allowed budget for ${selectedMonth} / ${selectedYear}`}</Typography>
                     <Typography sx={{ color: 'black', fontStyle: 'italic' }}>Reminder: You can add budget for this month only until the end of the month, after that this option won't be available</Typography>
@@ -173,8 +204,19 @@ const Budgets = () => {
             </Box>
             <Container>
                 <Paper sx={{ display: 'flex', flexDirection: 'column', padding: '20px' }}>
+                 <Box sx={{height:'100px'}}>
+                 {!isCurrentDate && budgetExists && (
+        <Typography onClick={handleOpenChangeBudget}
+            sx={{ width: '20%', backgroundColor: '#32675B', justifySelf: 'flex-end', borderRadius: '5px', padding: '5px', color: 'white', cursor: 'pointer' }}>
+            Change Total Budget for {selectedBudget.month} / {selectedBudget.year}
+        </Typography>
+    )}
+                 
+                 </Box>   
+                
                     <Box sx={{ marginTop: '10px', display: 'flex', justifyContent: 'center' }}>
                         <Typography sx={{ fontSize: '30px', fontWeight: 'bold', borderBottom: '1px solid' }}>Budget for: {selectedMonth} / {selectedYear}</Typography>
+                        
                     </Box>
                     <Box sx={{ marginTop: '30px' ,display:'flex',justifyContent:'space-around'}}>
                         <Box>
@@ -188,6 +230,25 @@ const Budgets = () => {
                     </Box>
                 </Paper>
             </Container>
+            <GenericModal isOpen={isChangeBudgetOpen} onClose={handleCancelChangeBudget}>
+                    <Typography sx={{ color: 'black', fontSize: '24px', fontWeight: 'bold' }}>Change Total Budget</Typography>
+                    <Typography sx={{ color: 'black' }}>Enter the new total budget for {selectedMonth} / {selectedYear}:</Typography>
+                    <Box sx={{ marginTop: '20px', display: 'flex', justifyContent: 'space-evenly' }}>
+                        <TextField
+                            sx={{ justifyContent: 'center', backgroundColor: 'white' }}
+                            margin="normal" type="number" onKeyDown={(e) => {
+                                if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
+                                    e.preventDefault();
+                                }
+                            }}
+                            value={newTotalBudget}
+                            onChange={handleNewTotalBudgetChange}
+                        ></TextField>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '50px' }}>
+                        <Typography sx={{ width: '150px', backgroundColor: '#32675B', color: 'white', textAlign: 'center', borderRadius: '5px', cursor: 'pointer' }} onClick={handleChangeBudget}>Submit</Typography>
+                    </Box>
+            </GenericModal> 
         </>
     );
 };

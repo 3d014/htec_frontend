@@ -6,7 +6,7 @@ export interface Product{
 }
 
 export interface ProductSumMap {
-    [productId: number]: {
+    [productId: string]: {
       productName: string;
       productSum: number;
     };

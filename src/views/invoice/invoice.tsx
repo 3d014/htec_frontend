@@ -234,7 +234,17 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
 
     const handleSubmit =async () => {
 
-        
+        const issueDate = dayjs(dateOfIssue);
+        const paymentDate = dayjs(dateOfPayment);
+    
+        // Calculate the difference in days
+        const diffInDays = paymentDate.diff(issueDate, 'day');
+    
+        // Example check: if the difference is negative, toast an error and return
+        if (diffInDays < 0) {
+            toast('Date of payment cannot be before date of issue');
+            return;
+        }
        
         if (!selectedVendor) {
             toast("Please select a vendor");
@@ -250,6 +260,7 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
             toast('Please add Invoice Number')
             return
         }
+       
 
         const emptyFields = invoiceItems.some(item =>
             !item.productId ||
@@ -446,13 +457,18 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
                 <DatePicker 
                     label='Date of issue' 
                     value={dateOfIssue}
-                    onChange={(newValue) => setDateOfIssue(newValue)} 
-                    sx={{backgroundColor:'white',marginTop:'5px'}}
+                    maxDate={dayjs()}
+                        onChange={(newValue) => 
+                            
+                            setDateOfIssue(newValue)} 
+                        sx={{backgroundColor:'white',marginTop:'5px'}}
                 />
                 <DatePicker 
                     
                     label='Date of payment' 
                     value={dateOfPayment}
+                    minDate={dateOfIssue||undefined}
+                    maxDate={dayjs()}
                     onChange={(newValue) => setDateOfPayment(newValue)} 
                     sx={{backgroundColor:'white',marginTop:'5px'}}
                 />

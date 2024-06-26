@@ -13,7 +13,8 @@ let initialBudget:Budget={
 const fetchBudgetForMonthYear = async (
     year: number,
     month: string,
-    setterFunction: React.Dispatch<React.SetStateAction<Budget >>
+    setterFunction: React.Dispatch<React.SetStateAction<Budget >>,
+    budgetAlreadyExists: React.Dispatch<React.SetStateAction<boolean >>
 ) => {
     try {
         const response = await axiosInstance.get(`/api/budget/${year}/${month}`, {
@@ -22,12 +23,15 @@ const fetchBudgetForMonthYear = async (
 
         const budget: Budget = response.data.budget;
         setterFunction(budget);
+        budgetAlreadyExists(true)
     } catch (error) {
         setterFunction(initialBudget)
+        budgetAlreadyExists(false)
+        
         return toast('Budget for selected period is not available',{
             autoClose:3500
         })
-        
+       
     }
 };
 
