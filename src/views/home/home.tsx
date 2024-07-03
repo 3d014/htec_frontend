@@ -11,6 +11,7 @@ import fetchInvoices from "../../utils/fetchFunctions/fetchInvoices";
 
 import axiosInstance from "../../api/axiosInstance";
 import fetchProductSum from "../../utils/fetchFunctions/fetchProductSum";
+import Budgets from "../budget/budget";
 
 
 const initialProductSum:ProductSumMap={
@@ -62,10 +63,16 @@ const Home = () => {
   },[])
   return (
     <>
-      <Box sx={{width:'90%',display:'flex'}}>
+      <Box sx={{width:'90%',display:'flex',flexDirection:'column',alignItems:'center'}}>
+       
+        <Box sx={{padding:'20px'}}>
+          <Budgets></Budgets>
+        </Box>
+
         <Box sx={{padding:'50px'}}>
         <GenericTable config={config} data={productsData}></GenericTable>
         </Box>
+
       </Box>
       
       </>

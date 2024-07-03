@@ -14,22 +14,25 @@ interface HeaderStyles{
 const headerStyles:HeaderStyles={
     largerScreen:{
         htecLogo:{
-            backgroundColor:'#32675B',
-            backgroundImage:'url(/assets/htecLogo.svg)',height:'80px',
+            
+            paddingTop:'30px',
+            backgroundColor:'black',
+            backgroundImage:'url(/assets/htecLogo.svg)',
+            height:'50px',
             backgroundRepeat:'no-repeat',backgroundPosition:'center',
-            backgroundSize:'cover',width:'20%'
+            backgroundSize:'cover',width:'20%',
         },
-        emptyBox:{backgroundColor:'#32675B',height:'80px',width:'70%'}
+        emptyBox:{background:'black',height:'50px',width:'70%'}
 
     },
     smallerScreen:{
         htecLogo:{
-            backgroundColor:'#32675B',
-            backgroundImage:'url(/assets/htecLogo.svg)',height:'80px',
+            backgroundColor:'black',
+            backgroundImage:'url(/assets/htecLogo.svg)',height:'50px',
             backgroundRepeat:'no-repeat',backgroundPosition:'center',
             backgroundSize:'cover',width:'35%'
         },
-        emptyBox:{backgroundColor:'#32675B',height:'80px',width:'55%'}
+        emptyBox:{backgroundColor:'black',height:'50px',width:'55%'}
     }
 }
 

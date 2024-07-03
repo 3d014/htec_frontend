@@ -15,7 +15,7 @@ const Header: React.FC<HeaderProps> = ({ toggleDrawer, isDrawerOpen }) => {
   const navigate = useNavigate();
   const { setAuth } = useAuth();
 
-  return (<Box sx={{display:'flex',backgroundColor:'#32675B'}}>
+  return (<Box sx={{display:'flex',backgroundColor:'black',zIndex:'9999'}}>
       <Box sx={isMatch?headerStyles.largerScreen.htecLogo:headerStyles.smallerScreen.htecLogo}>
       </Box>
       <Box sx={isMatch?headerStyles.largerScreen.emptyBox:headerStyles.smallerScreen.emptyBox}></Box>
@@ -41,7 +41,7 @@ const Header: React.FC<HeaderProps> = ({ toggleDrawer, isDrawerOpen }) => {
   },}}> Logout
   </Button>)}
       {isMatch?<></>:
-        <Box sx={{backgroundColor:'#32675B',height:'80px',
+        <Box sx={{backgroundColor:'#C1C1C1',height:'50px',
         width:'10%',display:'flex',justifyContent:'center',alignItems:'center'}}><MenuIcon onClick={toggleDrawer} ></MenuIcon></Box>
       }
       {isMatch?<></>:<Drawer isDrawerOpen={isDrawerOpen} toggleDrawer={toggleDrawer}></Drawer>}

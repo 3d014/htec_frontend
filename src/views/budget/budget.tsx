@@ -1,4 +1,4 @@
-import { Box, Button, Container, MenuItem, Paper, Select, SelectChangeEvent, TextField, Typography } from "@mui/material";
+import { Box, Button, Checkbox, Container, MenuItem, Paper, Select, SelectChangeEvent, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import Vendor from "../../models/vendors";
 import fetchVendors from "../../utils/fetchFunctions/fetchVendors";
@@ -9,6 +9,7 @@ import GenericModal from "../../components/modal/genericModal";
 import axiosInstance from "../../api/axiosInstance";
 import { toast } from "react-toastify";
 import fetchBudgetForMonthYear from "../../utils/fetchFunctions/fetchBudgetForMonthYear";
+import { Check } from "@mui/icons-material";
 
 
 const generateMonthNames = (): string[] => {
@@ -202,9 +203,15 @@ const [newTotalBudget, setNewTotalBudget] = useState<number | string>('');
                     </Box>
                 </GenericModal>
             </Box>
+
+            <Box sx={{height:'50px',border:'1px solid',display:'flex',justifyContent:'space-around',padding:'5px'}}>
+                <Box sx={{display:'flex'}}>
+                    
+                </Box>
+            </Box>
             <Container>
                 <Paper sx={{ display: 'flex', flexDirection: 'column', padding: '20px' }}>
-                 <Box sx={{height:'100px'}}>
+                 <Box sx={{height:'50px'}}>
                  {!isCurrentDate && budgetExists && (
         <Typography onClick={handleOpenChangeBudget}
             sx={{ width: '20%', backgroundColor: '#32675B', justifySelf: 'flex-end', borderRadius: '5px', padding: '5px', color: 'white', cursor: 'pointer' }}>

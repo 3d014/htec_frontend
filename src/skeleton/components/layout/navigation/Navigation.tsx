@@ -26,7 +26,7 @@ const Navigation = () => {
     }, [location.pathname]);
 
     return (<>
-        <List sx={{  height: '100%', backgroundColor: "#FFFFFF", borderRight: '1px solid', color: '#000000', padding: '10px' }}>
+        <List sx={{  height: '100%', backgroundColor: "C1C1C1", borderRight: '1px solid', color: '#000000', padding: '10px' }}>
             {navigationItems.map(item => (
                 <ListItem 
                 sx={{ 
@@ -36,7 +36,7 @@ const Navigation = () => {
                     cursor: 'pointer', 
                     marginBottom: '10px',
                     boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Increased shadow by default
-                    backgroundColor: selectedItem === item.routeName ? "#C4DCB3" : "white", // Updated selected background color
+                    backgroundColor: selectedItem === item.routeName ? "#32675B" : "white", // Updated selected background color
                     color: selectedItem === item.routeName ? "white" : "#000000", // Updated text color when selected
                     textAlign: 'center', // Center the text
                     '&:hover': {

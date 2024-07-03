@@ -23,8 +23,8 @@ const Layout=({ children }: { children: ReactNode })=>{
 
 
         <Box sx={{display:'flex',flexDirection:'row'}}>
-            {isMatch?<Box sx={isMatch?{backgroundColor:'grey',height:'100vh',width:'25%'}:{}}><Navigation></Navigation></Box>:<></>}
-            <Box sx={isMatch?{backgroundColor:'white',width:'75%'}:{backgroundColor:'white',width:'100%'}}>{children}</Box>
+            {isMatch?<Box sx={isMatch?{backgroundColor:'black',height:'100vh',width:'20%'}:{}}><Navigation></Navigation></Box>:<></>}
+            <Box sx={isMatch?{backgroundColor:'white',width:'80%'}:{backgroundColor:'white',width:'100%'}}>{children}</Box>
 
         </Box>
     </Box>
