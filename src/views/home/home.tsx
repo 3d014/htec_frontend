@@ -63,7 +63,7 @@ const Home = () => {
   },[])
   return (
     <>
-      <Box sx={{width:'90%',display:'flex',flexDirection:'column',alignItems:'center'}}>
+      <Box sx={{display:'flex',flexDirection:'column',alignItems:'center'}}>
        
         <Box sx={{padding:'20px'}}>
           <Budgets></Budgets>

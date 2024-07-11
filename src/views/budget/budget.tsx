@@ -143,7 +143,7 @@ const [newTotalBudget, setNewTotalBudget] = useState<number | string>('');
                 
 
     return (
-        <>
+        <Box sx={{display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
             <Box sx={{ marginTop: '10px', display: 'flex', flexDirection: 'row', gap: '20px', padding: '20px', justifyContent: 'space-around', flexWrap: 'wrap' }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-around', gap: '20px' }}>
                     <Typography sx={{ backgroundColor: '#32675B', borderRadius: '5px', textAlign: 'center', width: '100px', padding: '20px', color: 'white' }}>MONTH</Typography>
@@ -206,7 +206,7 @@ const [newTotalBudget, setNewTotalBudget] = useState<number | string>('');
 
             <Box sx={{height:'50px',border:'1px solid',display:'flex',justifyContent:'space-around',padding:'5px'}}>
                 <Box sx={{display:'flex'}}>
-                    
+                    Options to be displayed here
                 </Box>
             </Box>
             <Container>
@@ -256,7 +256,7 @@ const [newTotalBudget, setNewTotalBudget] = useState<number | string>('');
                         <Typography sx={{ width: '150px', backgroundColor: '#32675B', color: 'white', textAlign: 'center', borderRadius: '5px', cursor: 'pointer' }} onClick={handleChangeBudget}>Submit</Typography>
                     </Box>
             </GenericModal> 
-        </>
+        </Box>
     );
 };
 

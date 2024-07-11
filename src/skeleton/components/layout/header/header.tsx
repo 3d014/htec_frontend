@@ -15,7 +15,7 @@ const Header: React.FC<HeaderProps> = ({ toggleDrawer, isDrawerOpen }) => {
   const navigate = useNavigate();
   const { setAuth } = useAuth();
 
-  return (<Box sx={{display:'flex',backgroundColor:'black',zIndex:'9999'}}>
+  return (<Box sx={{display:'flex',backgroundColor:'black'  ,background:'linear-gradient(90deg, rgba(12,12,12,1) 0%, rgba(255,255,255,1) 100%)'}}>
       <Box sx={isMatch?headerStyles.largerScreen.htecLogo:headerStyles.smallerScreen.htecLogo}>
       </Box>
       <Box sx={isMatch?headerStyles.largerScreen.emptyBox:headerStyles.smallerScreen.emptyBox}></Box>
@@ -35,7 +35,7 @@ const Header: React.FC<HeaderProps> = ({ toggleDrawer, isDrawerOpen }) => {
           } catch (error) {
             console.error("Error occured during logout:", error);
           }
-        }} variant='contained' sx={{height:'20%',alignSelf:'center',justifySelf:'center',margin:'20px',background:'#E0F6FF',color:'#1C1C1C','&:hover': {
+        }} variant='contained' sx={{height:'30px',alignSelf:'center',justifySelf:'center',margin:'20px',background:'#E0F6FF',color:'#1C1C1C','&:hover': {
       backgroundColor: '#fff',
       color: '#3c52b2',
   },}}> Logout

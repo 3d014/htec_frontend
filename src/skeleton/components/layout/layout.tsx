@@ -1,32 +1,48 @@
-import { Box, useMediaQuery } from "@mui/material"
-import  { ReactNode, useState } from "react"
-import Header from "./header/header"
-import Navigation from "./navigation/Navigation"
+import { Box, useMediaQuery, Grid } from "@mui/material";
+import { ReactNode, useState } from "react";
+import Header from "./header/header";
+import Navigation from "./navigation/Navigation";
 
-const Layout=({ children }: { children: ReactNode })=>{
-    const isMatch= useMediaQuery('(min-width:600px)')
+const Layout = ({ children }: { children: ReactNode }) => {
+  const isMatch = useMediaQuery("(min-width:600px)");
 
-    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const toggleDrawer = () => {
     setIsDrawerOpen(!isDrawerOpen);
   };
 
-    return<Box sx={{display:'flex',flexDirection:'column'}}>
+  return (
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
       <Header toggleDrawer={toggleDrawer} isDrawerOpen={isDrawerOpen} />
-
-        {/* <Grid style={{}} container spacing={2}>
-        {isMatch?<Grid item xs={isMatch?2:0} sx={{background:'green',height:'100vh'}}>sablon</Grid>:<></>}
-        <Grid item xs={isMatch?10:12} sx={{background:'white'}}>{children}</Grid> */}
-
-    {/* </Grid> */}
-
-
-        <Box sx={{display:'flex',flexDirection:'row'}}>
-            {isMatch?<Box sx={isMatch?{backgroundColor:'black',height:'100vh',width:'20%'}:{}}><Navigation></Navigation></Box>:<></>}
-            <Box sx={isMatch?{backgroundColor:'white',width:'80%'}:{backgroundColor:'white',width:'100%'}}>{children}</Box>
-
-        </Box>
+      <Grid container sx={{ flexGrow: 1, height: "calc(100vh - 64px)" }}>
+        {isMatch && (
+          <Grid
+            item
+            xs={2}
+            sx={{
+              backgroundColor: "black",
+              height: "100%",
+              
+            }}
+          >
+            <Navigation />
+          </Grid>
+        )}
+        <Grid
+          item
+          xs={isMatch ? 10 : 12}
+          sx={{
+            backgroundColor: "white",
+            height: "100%",
+            overflowY: "auto"
+          }}
+        >
+          {children}
+        </Grid>
+      </Grid>
     </Box>
-}
-export default Layout
+  );
+};
+
+export default Layout;

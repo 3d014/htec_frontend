@@ -417,16 +417,17 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
     ];
 
     return <>
-    <Box sx={{display:'flex',flexDirection:'column'}}>
+    <Box sx={{display:'flex',flexDirection:'column',alignItems:'center'}}>
 
         
         <Box sx={{display:'flex',alignItems:'center',justifyContent:'center'}}>
             <h1>Invoices</h1>
         </Box>
 
-        <Box sx={{display:'flex',alignItems:'flex-end',justifyContent:'center',margin:'20px',flexDirection:'column',gap:'10px'}}>
+        <Box sx={{display:'flex',margin:'20px',flexDirection:'row',gap:'10px',justifyContent:'space-between'}}>
         
         <Button sx={{width:'200px'}} variant={'contained'} onClick={handleAddNewInvoice} >Add new invoice</Button>
+        <Button sx={{width:'200px'}} variant={'contained'} onClick={handleAddNewInvoice} >Scan new invoice</Button>
         
         </Box>
 
