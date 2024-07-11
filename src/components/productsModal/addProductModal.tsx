@@ -48,6 +48,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSa
         setProductName('')
         setProductMeasure('')
         onClose();
+        setSelectedCategory(null)
     };
     const [categoriesData,setCategoriesData]=useState<Category[]>([{
         categoryId:'',

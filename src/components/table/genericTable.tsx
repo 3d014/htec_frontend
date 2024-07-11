@@ -25,7 +25,7 @@ interface TableProps<T>{
         <TableHead sx={{}}>
             <TableRow>
                 {props.config.map((column,key)=>
-                    {return <TableCell sx={{backgroundColor:'#D0FBE8',color:"#32675B"}} key={key}>{column.getHeader()}</TableCell>})}
+                    {return <TableCell sx={{backgroundColor:'#32675B',color:"white"}} key={key}>{column.getHeader()}</TableCell>})}
             </TableRow>    
         </TableHead> 
 

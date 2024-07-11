@@ -1,4 +1,4 @@
-import { Box, Dialog } from "@mui/material"
+import { Box, Button, Dialog } from "@mui/material"
 import Invoice from "../../models/invoice"
 
 import dayjs from "dayjs";
@@ -24,7 +24,7 @@ const InvoiceOverview=({ invoice ,isOpen,onClose,vendors,products }: InvoiceOver
     const selectedVendor = vendors.find(vendor => vendor.vendorId === invoice.vendorId);
 
     useEffect(() => {
-        console.log(invoice)
+        
         fetchInvoiceWithItems(setInvoiceWithItems,InvoiceWithItems.invoiceId)
     
     }, []);
@@ -87,6 +87,7 @@ const InvoiceOverview=({ invoice ,isOpen,onClose,vendors,products }: InvoiceOver
         <>
 
         <Dialog open={isOpen} onClose={onClose}  maxWidth='xl'>
+        <Button variant="contained" sx={{backgroundColor:'transparent',color:'black',width:'100px',alignSelf:'flex-end'}} onClick={()=>{onClose()}}>X</Button>
         <Box sx={{backgroundColor:'white', display:'flex',padding:'20px',gap:'10px',flexDirection:'column'}}>
         <div style={{fontSize:'30px',fontWeight:'bold'}}>{selectedVendor&& selectedVendor.vendorName}</div>
         {selectedVendor ? (

@@ -11,7 +11,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import Category from '../../models/category'
 import fetchCategories from '../../utils/fetchFunctions/fetchCategories'
 import fetchProductsData from '../../utils/fetchFunctions/fetchProducts'
-
+import { AxiosError } from 'axios'
+import { toast } from 'react-toastify'
 const initialCategory:Category={ categoryId:'',
 categoryName:''}
 
@@ -63,11 +64,19 @@ const Products = () => {
 
     const handleDeleteProduct=async (product:Product)=>{
         const {productId}=product
+       
         if (productId){
+            try{
             await axiosInstance.delete('/api/products',{headers:{Authorization:localStorage.getItem('token')},data:{productId}})
             const filteredProducts:Product[]=productsData.filter(item=>product.productId!==item.productId)
             setProductsData(filteredProducts)
-            setDeleteFlag(!deleteFlag)
+            setDeleteFlag(!deleteFlag)}
+            catch(e:any){
+                
+                if(e.response.status==409){ 
+                toast.error(e.response.data.message)}
+                              
+            }
         }
         
     }
@@ -105,7 +114,7 @@ const Products = () => {
 
 
     return (<Box sx={isMatch?styles.largerScreen.body:styles.smallerScreen.body}>
-        <Box sx={isMatch?styles.largerScreen.proizvodi:styles.smallerScreen.proizvodi}> Proizvodi </Box>
+        <Box sx={isMatch?styles.largerScreen.proizvodi:styles.smallerScreen.proizvodi}> Products </Box>
         <Box sx={{width:'90%',margin:'30px', display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
        
             {<GenericTable data={productsData} config={config}/>}  

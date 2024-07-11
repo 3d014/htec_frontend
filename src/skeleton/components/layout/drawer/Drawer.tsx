@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import useAuth from "../../../../hooks/useAuth";
 import RoutesData from "../../../../providers/routeProvider";
-import { List, ListItem, ListItemText, Drawer as MuiDrawer } from "@mui/material";
+import { Button, List, ListItem, ListItemText, Drawer as MuiDrawer } from "@mui/material";
 import { useLocation, useNavigate } from 'react-router-dom';
+import axiosInstance from "../../../../api/axiosInstance";
+
+
 interface DrawerProps {
 
     isDrawerOpen: boolean;
@@ -15,6 +18,8 @@ const Drawer: React.FC<DrawerProps>  = ({isDrawerOpen,toggleDrawer}) => {
     const [hoveredItem, setHoveredItem] = useState<string>(''); // State to track hovered item
     const navigate=useNavigate()
     const location = useLocation();
+    
+    const { setAuth } = useAuth();
 
     const handleItemClick = (path: string) => {
         setSelectedItem(path);
@@ -90,6 +95,27 @@ const Drawer: React.FC<DrawerProps>  = ({isDrawerOpen,toggleDrawer}) => {
                     </ListItem>
                 ))}
             </List>
+            <Button onClick={async () => {
+          try {
+            const response = await axiosInstance.post("/api/auth/logout", {
+              token: localStorage.getItem("token"),
+            });
+
+            if (response.status === 200) {
+              localStorage.removeItem("token");
+              setAuth(null);
+              navigate("/home");
+            } else {
+              console.error(response.data.msg);
+            }
+          } catch (error) {
+            console.error("Error occured during logout:", error);
+          }
+        }} variant='contained' sx={{alignSelf:'center',justifySelf:'center',margin:'20px',background:'#E0F6FF',color:'#1C1C1C','&:hover': {
+      backgroundColor: '#fff',
+      color: '#3c52b2',
+  },}}> Logout
+  </Button>
         </MuiDrawer>
     );
 }

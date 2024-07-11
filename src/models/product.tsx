@@ -4,3 +4,10 @@ export interface Product{
     measuringUnit:string,
     categoryId?:string
 }
+
+export interface ProductSumMap {
+    [productId: string]: {
+      productName: string;
+      productSum: number;
+    };
+  }

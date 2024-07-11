@@ -234,7 +234,17 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
 
     const handleSubmit =async () => {
 
-        
+        const issueDate = dayjs(dateOfIssue);
+        const paymentDate = dayjs(dateOfPayment);
+    
+        // Calculate the difference in days
+        const diffInDays = paymentDate.diff(issueDate, 'day');
+    
+        // Example check: if the difference is negative, toast an error and return
+        if (diffInDays < 0) {
+            toast('Date of payment cannot be before date of issue');
+            return;
+        }
        
         if (!selectedVendor) {
             toast("Please select a vendor");
@@ -250,6 +260,7 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
             toast('Please add Invoice Number')
             return
         }
+       
 
         const emptyFields = invoiceItems.some(item =>
             !item.productId ||
@@ -406,16 +417,17 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
     ];
 
     return <>
-    <Box sx={{display:'flex',flexDirection:'column'}}>
+    <Box sx={{display:'flex',flexDirection:'column',alignItems:'center'}}>
 
         
         <Box sx={{display:'flex',alignItems:'center',justifyContent:'center'}}>
             <h1>Invoices</h1>
         </Box>
 
-        <Box sx={{display:'flex',alignItems:'flex-end',justifyContent:'center',margin:'20px',flexDirection:'column',gap:'10px'}}>
+        <Box sx={{display:'flex',margin:'20px',flexDirection:'row',gap:'10px',justifyContent:'space-between'}}>
         
         <Button sx={{width:'200px'}} variant={'contained'} onClick={handleAddNewInvoice} >Add new invoice</Button>
+        <Button sx={{width:'200px'}} variant={'contained'} onClick={handleAddNewInvoice} >Scan new invoice</Button>
         
         </Box>
 
@@ -446,13 +458,18 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
                 <DatePicker 
                     label='Date of issue' 
                     value={dateOfIssue}
-                    onChange={(newValue) => setDateOfIssue(newValue)} 
-                    sx={{backgroundColor:'white',marginTop:'5px'}}
+                    maxDate={dayjs()}
+                        onChange={(newValue) => 
+                            
+                            setDateOfIssue(newValue)} 
+                        sx={{backgroundColor:'white',marginTop:'5px'}}
                 />
                 <DatePicker 
                     
                     label='Date of payment' 
                     value={dateOfPayment}
+                    minDate={dateOfIssue||undefined}
+                    maxDate={dayjs()}
                     onChange={(newValue) => setDateOfPayment(newValue)} 
                     sx={{backgroundColor:'white',marginTop:'5px'}}
                 />
@@ -511,7 +528,7 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
                         }
                     }}
                         onChange={(e) => {
-                            console.log(parseFloat(e.target.value))
+                           
                             handleDiscountChange(parseFloat(e.target.value), index)}
                         } 
                         sx={{backgroundColor:'white',marginTop:'10px',width:'150px'}}>  

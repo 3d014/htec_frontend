@@ -38,6 +38,10 @@ const Categories=()=>{
             toast('Category with that name already exists')
             return
         }
+            if(newCategory.categoryName==''||newCategory.categoryName==null ||newCategory.categoryName.trim()==''){
+                toast('Please enter the category name')
+                return
+            }
         try {
             await axiosInstance.post('/api/categories', newCategory, {
                 headers: { Authorization: localStorage.getItem('token') }
@@ -56,6 +60,10 @@ const Categories=()=>{
       
         if(categoriesData.map(category=>category.categoryName.toLowerCase()).includes(newCategory.categoryName.toLowerCase())){
             toast('Category with that name already exists')
+            return
+        }
+        if(newCategory.categoryName==''||newCategory.categoryName==null ||newCategory.categoryName.trim()==''){
+            toast('Please enter the category name')
             return
         }
         try {
@@ -99,13 +107,13 @@ const Categories=()=>{
     const config:Columns<Category>[]=[
         {getHeader:()=>'Settings',
          getValue:
-         (_Category:Category) =>
+         (Category:Category) =>
          <> {deleteFlag? <div style={{width:'50px',height:"20px"}}>
-            <Button size='small' onClick={()=>{handleDeleteCategory(_Category)}}>
+            <Button size='small' onClick={()=>{handleDeleteCategory(Category)}}>
                 <DeleteIcon sx={{color:'#A82B24'}}/>
             </Button></div> :
             <div style={{width:'50px',height:"20px"}}>
-                <Button size='small' onClick={()=>{handleEditCategory(_Category)}}>
+                <Button size='small' onClick={()=>{handleEditCategory(Category)}}>
                     <EditIcon sx={{color:'#32675B'}}/>
                 </Button>
                 </div>}</>

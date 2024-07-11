@@ -95,8 +95,14 @@
                   });
                   const filteredVendors: Vendor[] = vendorData.filter(item => item.vendorId !== vendorId);
                   setVendorData(filteredVendors);
-              } catch (error) {
+                  setDeleteFlag(false)
+              } catch (error:any) {
+                if(error.response.status==409){
+                  toast(error.response.data.message)
+                } else{
                   console.error('Error deleting vendor:', error);
+                }
+                  
               }
           }
       };
@@ -191,7 +197,7 @@
 
       const config: Columns<Vendor>[] = [
           {   
-              getHeader: () => 'Settings',
+              getHeader: () => 'Edit / Delete',
               getValue: (vendor: Vendor) =><> {deleteFlag? <div style={{width:'50px',height:"20px"}}>
                 <Button size='small' onClick={()=>{handleDeleteVendor(vendor)}}><DeleteIcon sx={{color:'#A82B24'}}/>
                 </Button></div>:<div style={{width:'50px',height:"20px"}}>

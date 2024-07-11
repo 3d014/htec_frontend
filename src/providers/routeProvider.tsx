@@ -35,6 +35,7 @@ const RoutesData: Route[] = [
     isNavigation: true,
     component: <Home />,
   },
+  
   {
     routeName: "Products",
     path: "/products",

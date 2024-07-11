@@ -15,7 +15,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       const decodedToken: any = jwtDecode(token);
       const currentTime = Date.now() / 1000;
       if (decodedToken.exp < currentTime) {
-        console.log("Hello")
+        
       }
       
       return {
