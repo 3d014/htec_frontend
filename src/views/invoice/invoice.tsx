@@ -18,6 +18,7 @@ import { Columns } from "../../models/columns";
 import dayjs, { Dayjs } from "dayjs";
 import { toast } from "react-toastify";
 import InvoiceOverview from "../../components/invoiceOverview/invoiceOverview";
+import InvoiceUploader from "./invoiceUploader/invoiceUploader";
 
 const initialInvoice:Invoice={
     invoiceId:'',
@@ -68,6 +69,7 @@ const Invoices=()=>{
     const [selectedVendor,setSelectedVendor]=useState<Vendor>()
     const [deleteFlag,setDeleteFlag]=useState(false)
     const [isInvoiceShown,setIsInvoiceShown]=useState(false)
+    const [scanInvoiceFlag,setScanInvoiceFlag]=useState(false)
 
     const [invoicesData,setInvoicesData]=useState<Invoice[]>([])
 
@@ -348,6 +350,14 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
         setNewInvoice(updatedInvoice)
     }
 
+
+    const handleScanInvoice=()=>{
+        setScanInvoiceFlag(true)
+    }
+    const handleCloseScanInvoice=()=>{
+        setScanInvoiceFlag(false)
+        
+    }
     useEffect(()=>{
         fetchVendors(setVendorData)
         fetchProducts(setProductsData)
@@ -424,10 +434,10 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
             <h1>Invoices</h1>
         </Box>
 
-        <Box sx={{display:'flex',margin:'20px',flexDirection:'row',gap:'10px',justifyContent:'space-between'}}>
+        <Box sx={{display:'flex',margin:'20px',flexDirection:'row',gap:'10px',justifyContent:'space-between',width:'70%'}}>
         
         <Button sx={{width:'200px'}} variant={'contained'} onClick={handleAddNewInvoice} >Add new invoice</Button>
-        <Button sx={{width:'200px'}} variant={'contained'} onClick={handleAddNewInvoice} >Scan new invoice</Button>
+        <Button sx={{width:'200px'}} variant={'contained'} onClick={handleScanInvoice} >Scan new invoice</Button>
         
         </Box>
 
@@ -435,6 +445,7 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
         vendors={vendorData}
         products={productsData} />}
      
+        {scanInvoiceFlag&&<InvoiceUploader isOpen={scanInvoiceFlag} onClose={handleCloseScanInvoice} ></InvoiceUploader>}
         
         <GenericModal isOpen={isModalOpen} onClose={handleModalClose}>
             <Box sx={{display:'flex',flexDirection:'column'}}>

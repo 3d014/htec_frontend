@@ -1,4 +1,4 @@
-import { Box, Button, TextField, Modal, useMediaQuery, Autocomplete } from '@mui/material';
+import { Box, Button, TextField, Modal, useMediaQuery, Autocomplete, createFilterOptions } from '@mui/material';
 import { useEffect, useState } from 'react';
 import styles from './addProductsModal.styles';
 import { Product } from '../../models/product';
@@ -7,80 +7,85 @@ import Category from '../../models/category';
 
 import fetchCategories from '../../utils/fetchFunctions/fetchCategories';
 import fetchProducts from '../../utils/fetchFunctions/fetchProducts';
-
+import MeasuringUnit from '../../models/measuringUnit';
+import fetchMeasuringUnits from '../../utils/fetchFunctions/fetchMeasuringUnits';
+import addMeasuringUnit from '../../utils/fetchFunctions/addMeasuringUnit';
 
 interface AddProductModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (product:Product) => void;
-    initialProduct : Product | null;
-    isEdit:boolean
+    onSave: (product: Product) => void;
+    initialProduct: Product | null;
+    isEdit: boolean;
 }
 
-const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSave, initialProduct,isEdit}) => {
-    const [productId, setProductId] = useState<string | undefined>(undefined)
+const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSave, initialProduct, isEdit }) => {
+    const [productId, setProductId] = useState<string | undefined>(undefined);
     const [productName, setProductName] = useState('');
-    const [productMeasure, setProductMeasure] = useState('');
+    const [productMeasure, setProductMeasure] = useState<MeasuringUnit | null>(null);
 
-    const [productsData,setProductsData] = useState<Product[]>([])
+    const [productsData, setProductsData] = useState<Product[]>([]);
+    const [measuringUnitsData, setMeasuringUnitsData] = useState<MeasuringUnit[]>([]);
+
+    const [measuringUnitInputValue, setMeasuringUnitInputValue] = useState<string>('');
+
     const handleSaveProduct = () => {
-      const product:Product={
+        const product: Product = {
             productId,
             productName,
-            measuringUnit:productMeasure,
-            categoryId:selectedCategory?.categoryId}
+            measuringUnit: productMeasure?.measuringUnitName || '',
+            categoryId: selectedCategory?.categoryId
+        };
 
+        if (!product.productName || !product.measuringUnit || !product.categoryId) {
+            toast.error("Fields can't be empty");
+            return;
+        }
 
-            if (!product.productName || !product.measuringUnit|| !product.categoryId){
-            toast.error("Fields can't be empty")
-                return
+        if (!isEdit) {
+            if (productsData.map(product => product.productName.toLowerCase()).includes(product.productName.toLowerCase())) {
+                toast.error("Product already exists");
+                return;
             }
+        }
 
-            if(!isEdit){
-                if(productsData.map(product => product.productName.toLowerCase()).includes(product.productName.toLowerCase()))
-                    {
-                        toast.error("Product already exists")
-                        return
-                    }
-            } 
-            
         onSave(product);
-        setProductName('')
-        setProductMeasure('')
+        setProductName('');
+        setProductMeasure({ measuringUnitId: '', measuringUnitName: '' });
         onClose();
-        setSelectedCategory(null)
+        setSelectedCategory(null);
     };
-    const [categoriesData,setCategoriesData]=useState<Category[]>([{
-        categoryId:'',
-        categoryName:''
-    }])
+
+    const [categoriesData, setCategoriesData] = useState<Category[]>([{
+        categoryId: '',
+        categoryName: ''
+    }]);
     const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
 
-    useEffect(()=>{
-        fetchProducts(setProductsData)
-        fetchCategories(setCategoriesData)
+    useEffect(() => {
+        fetchProducts(setProductsData);
+        fetchCategories(setCategoriesData);
+        fetchMeasuringUnits(setMeasuringUnitsData);
+        
         if (initialProduct) {
-            setProductId(initialProduct.productId)
-            setProductName(initialProduct.productName)
-            setProductMeasure(initialProduct.measuringUnit)
-                if(categoriesData[0].categoryId === initialProduct.categoryId) {
-                    setSelectedCategory(categoriesData[0])
-                } else {
-                    setSelectedCategory(categoriesData[1])
-                }
-        } else {
-            setProductId(undefined)
-            setProductName('')
-            setProductMeasure('')
-            setSelectedCategory(null)
-        }
-    },[initialProduct])
-    
+            setProductId(initialProduct.productId);
+            setProductName(initialProduct.productName);
+            setProductMeasure({ measuringUnitName: initialProduct.measuringUnit });
 
-    
+            const selectedCategory = categoriesData.find(category => category.categoryId === initialProduct.categoryId) || null;
+            setSelectedCategory(selectedCategory);
+        } else {
+            setProductId(undefined);
+            setProductName('');
+            setProductMeasure({ measuringUnitName: '' });
+            setSelectedCategory(null);
+        }
+    }, [initialProduct]);
 
     const isSmallScreen = useMediaQuery("(max-width:600px)");
-    
+
+    const filter = createFilterOptions<MeasuringUnit>();
+
     return (
         <Modal open={isOpen} onClose={onClose}>
             <Box sx={isSmallScreen ? styles.smallerScreen.modal : styles.largerScreen.modal}>
@@ -92,24 +97,55 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSa
                     fullWidth
                 />
 
-                
-                
-                <TextField
+                <Autocomplete
                     sx={isSmallScreen ? styles.smallerScreen.textField : styles.largerScreen.textField}
-                    label="Measuring unit"
+                    options={measuringUnitsData}
                     value={productMeasure}
-                    onChange={(e) => setProductMeasure(e.target.value)}
-                    fullWidth
+                    inputValue={measuringUnitInputValue}
+                    onInputChange={(_, newInputValue) => setMeasuringUnitInputValue(newInputValue)}
+                    getOptionLabel={(option) => typeof option === 'string' ? option : option.measuringUnitName}
+                    filterOptions={(options, params) => {
+                        const filtered = filter(options, params);
+                        const { inputValue } = params;
+                        // Suggest the creation of a new measuring unit if it doesn't already exist
+                        if (inputValue !== '' && !options.some(option => option.measuringUnitName === inputValue)) {
+                            filtered.push({
+                                measuringUnitId: '',
+                                measuringUnitName: inputValue
+                            });
+                        }
+                        return filtered;
+                    }}
+                    renderInput={(params) => <TextField {...params} label='Measuring Unit' />}
+                    renderOption={(props, option) => (
+                        <Box component="li" {...props}>
+                            {option.measuringUnitId === '' ? (
+                                <Button
+                                    onClick={async () => {
+                                        const newUnit = await addMeasuringUnit(measuringUnitInputValue);
+                                        setMeasuringUnitsData([...measuringUnitsData, newUnit]);
+                                        setProductMeasure(newUnit);
+                                    }}
+                                >
+                                    Add new measuring unit "{measuringUnitInputValue}"
+                                </Button>
+                            ) : (
+                                option.measuringUnitName
+                            )}
+                        </Box>
+                    )}
+                    onChange={(_event, newValue) => setProductMeasure(newValue)}
                 />
-                <Autocomplete sx={{backgroundColor: "white", color: "#32675B", margin: "5px"}}
+
+                <Autocomplete
+                    sx={{ backgroundColor: "white", color: "#32675B", margin: "5px" }}
                     options={categoriesData}
                     value={selectedCategory}
-                    onChange={(_event, newValue) => {
-                        setSelectedCategory(newValue);
-                    }}
+                    onChange={(_event, newValue) => setSelectedCategory(newValue)}
                     getOptionLabel={(option) => option.categoryName}
-                    renderInput={(params) => <TextField {...params} 
-                    label="Category" />}></Autocomplete>
+                    renderInput={(params) => <TextField {...params} label="Category" />}
+                />
+
                 <Button
                     variant="contained"
                     onClick={handleSaveProduct}
