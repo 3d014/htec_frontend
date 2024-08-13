@@ -90,26 +90,27 @@ const Invoices=()=>{
     const calculateTotals = (items: InvoiceItem[]) => {
         let totalWithoutPdv = 0;
         let totalWithPdv = 0;
-        let pdvValue = 0;
-        
+
         items.forEach(item => {
-            if (item.priceWithoutPdv !== null && item.quantity !== null && item.priceWithPdv !== null) {
+            if (item.priceWithoutPdv != null && item.quantity != null && item.priceWithPdv != null) {
                 const itemTotalWithoutPdv = item.priceWithoutPdv * item.quantity;
                 const itemTotalWithPdv = item.priceWithPdv * item.quantity;
                 totalWithoutPdv += itemTotalWithoutPdv;
                 totalWithPdv += itemTotalWithPdv;
             }
         });
-        pdvValue = totalWithPdv - totalWithoutPdv;
+    
+        const pdvValue = totalWithPdv - totalWithoutPdv;
     
         setNewInvoice(prevInvoice => ({
-          ...prevInvoice,
-          totalValueWithoutPdv: totalWithoutPdv,
-          totalValueWithPdv: totalWithPdv,
-          pdvValue: pdvValue
+            ...prevInvoice,
+            totalValueWithoutPdv: totalWithoutPdv,
+            totalValueWithPdv: totalWithPdv,
+            pdvValue: pdvValue
         }));
-      };
-
+    };
+    
+    
     const handleAddNewInvoice=()=>{
         setIsModalOpen(!isModalOpen)
         
@@ -117,47 +118,75 @@ const Invoices=()=>{
 
 
     const handleModalClose = () => {
-        setIsModalOpen(false);
-        setProductsData(stationaryProducts)
+      // Zatvori modal
+      setIsModalOpen(false);
+      
+      // Ne resetuj invoiceItems i productsData, samo zatvori modal
     };
  
+    const handleVendorChange = (vendor:Vendor) => {
+      if (!vendor) {
+        setInvoiceItems(prevState => ({
+          ...prevState,
+          vendor: null,
+        }));
+      } else {
+        setInvoiceItems(prevState => ({
+          ...prevState,
+          vendor: vendor,
+        }));
+      }
+    };
+    
     const handleSelectedVendor=(vendor:Vendor)=>{
-        setSelectedVendor(vendor)
-        setNewInvoice((prevInvoice)=>({
-            ...prevInvoice,vendorId:vendor.vendorId})
-        )
+      setSelectedVendor(vendor);
+      setNewInvoice((prevInvoice) => ({
+          ...prevInvoice,
+          vendorId: vendor ? vendor.vendorId : ''
+      }));
        
     }
 
     const handleAddInvoiceItem = () => {
-        setInvoiceItems(prevItems => {
-            const newItem: InvoiceItem = {
-                ...initialInvoiceItem,
-                invoiceItemId: uuidv4() // Generate UUID when adding a new item
-            };
-            return [...prevItems, newItem];
-        });
-    };
+      setInvoiceItems(prevItems => {
+          const newItem: InvoiceItem = {
+              ...initialInvoiceItem,
+              invoiceItemId: uuidv4() // Generate UUID when adding a new item
+          };
+          return [...prevItems, newItem];
+      });
+  };
 
-    const handleProductChange=(selectedProduct:Product,invoiceItemId:string)=>{
-        const updatedInvoiceItems = invoiceItems.map(item=>{
-            if(item.invoiceItemId!==invoiceItemId){return item}
-            else{
-                return {...item,productId:selectedProduct.productId||''}
-            }
-        })
-        
-        const selectedProductsIds=updatedInvoiceItems.map(item=>{
-            return item.productId
-        })
-        const notPickedProducts = stationaryProducts.filter(product => {
-            return !selectedProductsIds.includes(product.productId ?? "");
-        });
-        
-        setInvoiceItems(updatedInvoiceItems)
-        setProductsData(notPickedProducts)
-        calculateTotals(updatedInvoiceItems)
+  const handleProductChange = (selectedProduct: Product | null, invoiceItemId: string) => {
+    const updatedInvoiceItems = invoiceItems.map(item => {
+        if (item.invoiceItemId !== invoiceItemId) {
+            return item;
+        } else {
+            return { ...item, productId: selectedProduct?.productId ?? "" };
+        }
+    });
+
+    const selectedProductsIds = updatedInvoiceItems.map(item => item.productId);
+
+    const notPickedProducts = stationaryProducts.filter(product => 
+        !selectedProductsIds.includes(product.productId ?? "")
+    );
+
+    setInvoiceItems(updatedInvoiceItems);
+    setProductsData(notPickedProducts);
+    calculateTotals(updatedInvoiceItems);
+
+    // Provjera validacije i prikazivanje toast obavijesti
+    if (!selectedProduct) {
+        toast.error('The product has been removed. Please select a product.');
     }
+};
+
+
+ 
+
+
+
 
     
 const handlePriceWithoutPdvChange = (value: number, index: number) => {
@@ -180,21 +209,47 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
     };
 
     const handleQuantityChange = (value: number, index: number) => {
+        // Ensure value is at least 1, default to 1 if not provided or invalid
+        const newValue = (value > 0) ? value : 1;
+    
         setInvoiceItems(prevItems => {
             const updatedItems = [...prevItems];
-            updatedItems[index] = { ...updatedItems[index], quantity: value };
-            calculateTotals(updatedItems);
+            updatedItems[index] = { ...updatedItems[index], quantity: newValue };
+            calculateTotals(updatedItems); // Recalculate totals with updated quantity
             return updatedItems;
         });
     };
+    
+    
+    
     const handleDiscountChange = (value: number, index: number) => {
         setInvoiceItems(prevItems => {
-            const updatedItems = [...prevItems];
-            updatedItems[index] = { ...updatedItems[index], discount: value };
-            calculateTotals(updatedItems);
-            return updatedItems;
+          const updatedItems = [...prevItems];
+          const item = updatedItems[index];
+      
+          // Check if originalPriceWithPdv is null or undefined and set it to priceWithPdv if necessary
+          if (item.originalPriceWithPdv == null && item.priceWithPdv != null) {
+            item.originalPriceWithPdv = item.priceWithPdv;
+          }
+      
+          // Calculate the discounted price with PDV, using 0 as a default value if originalPriceWithPdv is null or undefined
+          const discountedPriceWithPdv = (item.originalPriceWithPdv ?? 0) * ((100 - value) / 100);
+      
+          // Update the item with the discount and the new price with PDV
+          updatedItems[index] = {
+            ...item,
+            discount: value,
+            priceWithPdv: discountedPriceWithPdv
+          };
+      
+          // Recalculate the totals
+          calculateTotals(updatedItems);
+      
+          return updatedItems;
         });
-    };
+      };
+      
+    
     const handleDeleteInvoice=async (invoice:Invoice)=>{
         const {invoiceId}=invoice
         if (invoiceId){
@@ -207,132 +262,123 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
         
     }
     const handleRemoveInvoiceItem = (itemToRemove: InvoiceItem) => {
-
         const updatedInvoiceItems = invoiceItems.filter(item => item.invoiceItemId !== itemToRemove.invoiceItemId);
-      setInvoiceItems(updatedInvoiceItems)
-
-        // setProductsData(prevProducts=>{
-        //     let productToAdd=stationaryProducts.find(product=>product.productId===itemToRemove.productId)
-        //     if (productToAdd){
-        //         let updatedProducts=[...prevProducts,productToAdd]
-        //     return updatedProducts
-        //     } else {
-        //         return prevProducts
-        //     }
-            
-        // })
-
-        const selectedProductsIds=updatedInvoiceItems.map(item=>{
-            return item.productId
-        })
-        const notPickedProducts = stationaryProducts.filter(product => {
-            return !selectedProductsIds.includes(product.productId ?? "");
-        });
-
-        setProductsData(notPickedProducts)
-
+    
+        // Optionally: Reset quantity of remaining items to 1 if needed
+        // const updatedItems = updatedInvoiceItems.map(item => ({
+        //     ...item,
+        //     quantity: item.quantity && item.quantity > 0 ? item.quantity : 1
+        // }));
+    
+        // Update the invoice items and products data
+        setInvoiceItems(updatedInvoiceItems);
+    
+        // Update the products data if necessary
+        const selectedProductsIds = updatedInvoiceItems.map(item => item.productId);
+        const notPickedProducts = stationaryProducts.filter(product => !selectedProductsIds.includes(product.productId ?? ""));
+        setProductsData(notPickedProducts);
+    
         calculateTotals(updatedInvoiceItems);
     };
-
-    const handleSubmit =async () => {
-
-        const issueDate = dayjs(dateOfIssue);
-        const paymentDate = dayjs(dateOfPayment);
     
-        // Calculate the difference in days
-        const diffInDays = paymentDate.diff(issueDate, 'day');
-    
-        // Example check: if the difference is negative, toast an error and return
-        if (diffInDays < 0) {
-            toast('Date of payment cannot be before date of issue');
-            return;
-        }
-       
-        if (!selectedVendor) {
-            toast("Please select a vendor");
-            return;
-        }
 
-        if(invoiceItems.length==0){
-            toast('Please, add invoice items')
-            return
-        }
-
-        if(newInvoice.invoiceNumber==''||newInvoice.invoiceNumber==null){
-            toast('Please add Invoice Number')
-            return
-        }
-       
-
-        const emptyFields = invoiceItems.some(item =>
-            !item.productId ||
-            item.productCode.trim() === '' ||
-            item.priceWithoutPdv==null ||  Number.isNaN(item.priceWithoutPdv) ||
-            item.quantity==null ||  Number.isNaN(item.quantity) ||
-            item.discount==null || Number.isNaN(item.discount)
-        );
-        
-
-        if (emptyFields) {
-            toast("Please fill in all fields for invoice items");
-            return;
-        }
-
-        const quantityValidator=invoiceItems.some(item=>{
-            if(item.quantity!=null){
-                if(item.quantity<1){
-                    return true
-                }
-            }
-        }
-        )
-
-        if(quantityValidator){
-            toast("Quantity must be 1 or more ")
-            return
-        }
-
-       
-
-        try {
-        const newInvoiceId=uuidv4()
-        const updatedInvoice: Invoice = {
-        vendorId: selectedVendor.vendorId,
-        invoiceId: newInvoiceId,
-        invoiceNumber:newInvoice.invoiceNumber,
-        dateOfIssue:dateOfIssue?dateOfIssue.toDate():new Date() ,
-        dateOfPayment:dateOfPayment?dateOfPayment.toDate():new Date(),
-        totalValueWithoutPdv: newInvoice.totalValueWithoutPdv   ,
-        totalValueWithPdv: newInvoice.totalValueWithPdv,
-        pdvValue: newInvoice.pdvValue,
-        invoiceItems: invoiceItems.map(item=>({
-            ...item,
-            invoiceId:newInvoiceId,
-            sumWithoutPdv:item.priceWithoutPdv !== null ? item.priceWithoutPdv * (item.quantity || 0) : null,
-            sumWithPdv:item.priceWithPdv !== null ? item.priceWithPdv * (item.quantity || 0) : null
-        }))
-      };
-
-      await axiosInstance.post('/api/invoices', updatedInvoice, {
-        headers: { Authorization: localStorage.getItem('token') }
-      });
-
-      // Resetting state after successful submission
-      setSelectedVendor(initialVendor);
-      setInvoiceItems([]);
-      setDateOfIssue(dayjs())
-      setDateOfPayment(dayjs())
-      setIsModalOpen(false);
-      fetchInvoices(setInvoicesData)
-      setNewInvoice(initialInvoice)
-      setProductsData(stationaryProducts)
-
-    } catch (error) {
-      console.error("Error submitting invoice:", error);
-    }
-
-
-    }
+    const handleSubmit = async () => {
+      const issueDate = dayjs(dateOfIssue);
+      const paymentDate = dayjs(dateOfPayment);
+  
+      // Calculate the difference in days
+      const diffInDays = paymentDate.diff(issueDate, 'day');
+  
+      if (diffInDays < 0) {
+          toast('Date of payment cannot be before date of issue');
+          return;
+      }
+  
+      if (!selectedVendor) {
+          toast("Please select a vendor");
+          return;
+      }
+  
+      if (invoiceItems.length === 0) {
+          toast('Please, add invoice items');
+          return;
+      }
+  
+      if (!newInvoice.invoiceNumber) {
+          toast('Please add Invoice Number');
+          return;
+      }
+  
+      // Filter out invoice items with empty productId
+      const invalidProductItems = invoiceItems.filter(item => !item.productId.trim());
+  
+      if (invalidProductItems.length > 0) {
+          toast("Please select a product for all invoice items");
+          return;
+      }
+  
+      const emptyFields = invoiceItems.some(item =>
+          !item.productId || 
+          item.productCode.trim() === '' ||
+          item.priceWithoutPdv == null || Number.isNaN(item.priceWithoutPdv) ||
+          item.quantity == null || Number.isNaN(item.quantity) ||
+          item.discount == null || Number.isNaN(item.discount)
+      );
+  
+      if (emptyFields) {
+          toast("Please fill in all fields for invoice items");
+          return;
+      }
+  
+      const quantityValidator = invoiceItems.some(item => item.quantity < 1);
+  
+      if (quantityValidator) {
+          toast("Quantity must be 1 or more");
+          return;
+      }
+  
+      try {
+          const newInvoiceId = uuidv4();
+          const updatedInvoice: Invoice = {
+              vendorId: selectedVendor.vendorId,
+              invoiceId: newInvoiceId,
+              invoiceNumber: newInvoice.invoiceNumber,
+              dateOfIssue: dateOfIssue ? dateOfIssue.toDate() : new Date(),
+              dateOfPayment: dateOfPayment ? dateOfPayment.toDate() : new Date(),
+              totalValueWithoutPdv: newInvoice.totalValueWithoutPdv,
+              totalValueWithPdv: newInvoice.totalValueWithPdv,
+              pdvValue: newInvoice.pdvValue,
+              invoiceItems: invoiceItems
+                  .filter(item => item.productId.trim() !== "") // Filter out items with empty productId
+                  .map(item => ({
+                      ...item,
+                      invoiceId: newInvoiceId,
+                      sumWithoutPdv: item.priceWithoutPdv !== null ? item.priceWithoutPdv * (item.quantity || 0) : null,
+                      sumWithPdv: item.priceWithPdv !== null ? item.priceWithPdv * (item.quantity || 0) : null
+                  }))
+          };
+  
+          await axiosInstance.post('/api/invoices', updatedInvoice, {
+              headers: { Authorization: localStorage.getItem('token') }
+          });
+  
+          // Reset state after successful submission
+          setSelectedVendor(initialVendor);
+          setInvoiceItems([]);
+          setDateOfIssue(dayjs());
+          setDateOfPayment(dayjs());
+          setIsModalOpen(false);
+          fetchInvoices(setInvoicesData);
+          setNewInvoice(initialInvoice);
+          setProductsData(stationaryProducts);
+  
+      } catch (error) {
+          console.error("Error submitting invoice:", error);
+      }
+  };
+  
+  
+  
     const handleInvoiceOverviewClose=()=>{
         setIsInvoiceShown(false)
         setSelectedInvoice(null)
@@ -447,118 +493,189 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
      
         {scanInvoiceFlag&&<InvoiceUploader isOpen={scanInvoiceFlag} onClose={handleCloseScanInvoice} ></InvoiceUploader>}
         
+
+        
         <GenericModal isOpen={isModalOpen} onClose={handleModalClose}>
-            <Box sx={{display:'flex',flexDirection:'column'}}>
-                <Autocomplete options={vendorData||null} getOptionLabel={(option)=>option.vendorName}
-                    value={selectedVendor||null} 
-                    renderInput={(params) => <TextField {...params} label="Vendor" />}
-                    onChange={(_e,newValue)=>{
-                        if(newValue) handleSelectedVendor(newValue)
+      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+      <Autocomplete
+    options={vendorData || []}
+    getOptionLabel={(option) => option.vendorName}
+    value={selectedVendor || null}  // Postavi vrijednost na null kada nema izabranog vendora
+    renderInput={(params) => <TextField {...params} label="Vendor" />}
+    onChange={(_e, newValue) => {
+        if (newValue) {
+            handleSelectedVendor(newValue);  // Ako postoji novi vendor, postavi ga
+        } else {
+            // Ako je vendor uklonjen, postavi selectedVendor na undefined
+            setSelectedVendor(undefined);
+            // Možemo dodati dodatnu logiku ovdje ako je potrebno, ali bez `setFormValues` i `validateForm`
+        }
+    }}
+    sx={{ margin: '5px', backgroundColor: 'white' }}
+/>
 
-                    }}
-                    sx={{margin:'5px', backgroundColor:'white'}}
 
-                ></Autocomplete> 
+        <TextField
+          label="Invoice Number"
+          placeholder="Invoice Number"
+          sx={{ margin: '5px', backgroundColor: 'white' }}
+          value={newInvoice.invoiceNumber}
+          onChange={(e) => handleInvoiceNumberChange(e)}
+        />
 
-                <TextField label='Invoice Number' placeholder="Invoice Number"  sx={{margin:'5px', backgroundColor:'white'}}
-                value={newInvoice.invoiceNumber}
-                onChange={(e)=>{handleInvoiceNumberChange(e)}}
-                ></TextField>
+        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
+          <DatePicker
+            label="Date of issue"
+            value={dateOfIssue}
+            maxDate={dayjs()}
+            onChange={(newValue) => setDateOfIssue(newValue)}
+            sx={{ backgroundColor: 'white', marginTop: '5px' }}
+          />
+          <DatePicker
+            label="Date of payment"
+            value={dateOfPayment}
+            minDate={dateOfIssue || undefined}
+            maxDate={dayjs()}
+            onChange={(newValue) => setDateOfPayment(newValue)}
+            sx={{ backgroundColor: 'white', marginTop: '5px' }}
+          />
+        </Box>
 
-                <Box sx={{width:'100%', display:'flex',justifyContent:'space-between'}}> 
-                <DatePicker 
-                    label='Date of issue' 
-                    value={dateOfIssue}
-                    maxDate={dayjs()}
-                        onChange={(newValue) => 
-                            
-                            setDateOfIssue(newValue)} 
-                        sx={{backgroundColor:'white',marginTop:'5px'}}
-                />
-                <DatePicker 
-                    
-                    label='Date of payment' 
-                    value={dateOfPayment}
-                    minDate={dateOfIssue||undefined}
-                    maxDate={dayjs()}
-                    onChange={(newValue) => setDateOfPayment(newValue)} 
-                    sx={{backgroundColor:'white',marginTop:'5px'}}
-                />
-                </Box>
-                <Box sx={{width:'100%', display:'flex',justifyContent:'space-between'}}>
-                    <TextField label='Total value without PDV' placeholder="Total value without PDV" value={newInvoice.totalValueWithoutPdv} InputProps={{
-            readOnly: true,
-          }} sx={{marginTop:'10px',backgroundColor:'white'}}></TextField>
-                    <TextField label='Total value with PDV' placeholder="Total value with PDV" value={newInvoice.totalValueWithPdv} InputProps={{
-            readOnly: true,
-          }} sx={{marginTop:'10px',backgroundColor:'white'}}></TextField>
-                
-                </Box>
-                
-                <Button sx={{alignSelf:'flex-end',margin:'10px',fontSize:'12px',fontWeight:'bold'}} variant="contained" onClick={()=>{handleAddInvoiceItem()}}>Add new Invoice item</Button>
-               
-                {invoiceItems.map((item,index)=>{
-                    return <Box key={item.invoiceItemId} sx={{margin:'5px',display:'flex',flexWrap:'wrap',justifyContent:'flex-start',alignItems:'center',gap:'10px',border:'1px solid grey',borderRadius:'10px',padding:'5px'}}>
-                    <Autocomplete key={`${item.invoiceItemId}-product`} options={productsData} 
-                        renderInput={(params)=><TextField {...params} label='Product'></TextField>}
-                        getOptionLabel={(option)=>option.productName}
-                        onChange={(_e,newValue)=>{
-                            if(newValue) handleProductChange(newValue,item.invoiceItemId)}
-                        }
+        {invoiceItems.map((item, index) => (
+          <Box
+            key={item.invoiceItemId}
+            sx={{
+              margin: '5px',
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'flex-start',
+              alignItems: 'center',
+              gap: '10px',
+              border: '1px solid grey',
+              borderRadius: '10px',
+              padding: '5px',
+            }}
+          >
+            <Autocomplete
+              key={`${item.invoiceItemId}-product`}
+              options={productsData}
+              renderInput={(params) => <TextField {...params} label="Product" />}
+              getOptionLabel={(option) => option.productName}
+              onChange={(_e, newValue) => {
+              handleProductChange(newValue, item.invoiceItemId);
+        }}
+          sx={{ backgroundColor: 'white', marginTop: '10px', fontSize: '12px', width: '200px' }}
+            />
 
-                        sx={{backgroundColor:'white',marginTop:'10px',fontSize:'12px',width:'200px'}}
-                    />
-                    
+            <TextField
+              label="Product Code"
+              value={item.productCode || ''}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (/^\d*$/.test(value)) {
+                  handleProductCodeChange(value, index);
+                }
+              }}
+              sx={{ backgroundColor: 'white', marginTop: '10px', fontSize: '12px', width: '150px' }}
+            />
 
-                    <TextField label='Product Code'  
-                        onChange={(e) =>handleProductCodeChange(e.target.value, index)}
-                        sx={{backgroundColor:'white',marginTop:'10px',fontSize:'12px',width:'150px'}}>
-                    </TextField>
-                    <TextField label='Price Without PDV' type='number'
-                    onKeyDown={(e)=>{
-                        if (e.key === 'e' || e.key === 'E') {
-                            e.preventDefault();
-                        }
-                    }}
-                        onChange={(e) => handlePriceWithoutPdvChange(parseFloat(e.target.value), index)} 
-                        sx={{backgroundColor:'white',marginTop:'10px',width:'150px'}}>
-                        </TextField>
-                    <TextField label='Quantity' type='number' 
-                    onKeyDown={(e)=>{
-                        if (e.key === 'e' || e.key === 'E') {
-                            e.preventDefault();
-                        }
-                    }}
-                        onChange={(e) => handleQuantityChange(parseFloat(e.target.value), index)} 
-                        sx={{backgroundColor:'white',marginTop:'10px',width:'150px'}}> 
-                    </TextField>
-                    <TextField label='Discount' type='number' 
-                    onKeyDown={(e)=>{
-                        if (e.key === 'e' || e.key === 'E') {
-                            e.preventDefault();
-                        }
-                    }}
-                        onChange={(e) => {
-                           
-                            handleDiscountChange(parseFloat(e.target.value), index)}
-                        } 
-                        sx={{backgroundColor:'white',marginTop:'10px',width:'150px'}}>  
-                    </TextField>
-                    <Box sx={{flexGrow:'4',display:'flex',justifyContent:'flex-end',paddingRight:'30px'}}>
-                        <Button variant="contained" sx={{backgroundColor:'red',borderRadius:'100px'}}
-                        onClick={()=>{handleRemoveInvoiceItem(item)}}>X</Button>
-                    </Box>
-                  
-                    </Box>
-            })}
+            <TextField
+              label="Price Without PDV"
+              type="number"
+              inputProps={{ min: 0 }}
+              onChange={(e) => {
+                const value = parseFloat(e.target.value);
+                if (!isNaN(value) && value >= 0) {
+                  handlePriceWithoutPdvChange(value, index);
+                }
+              }}
+              sx={{ backgroundColor: 'white', marginTop: '10px', width: '150px' }}
+            />
+            <TextField
+            label="Quantity"
+            type="number"
+            inputProps={{ min: 1 }}
+              onChange={(e) => {
+              const value = e.target.value;
+                // Ako je polje prazno ili nulti, postavi na 1
+               if (value === '' || parseFloat(value) === 0) {
+                   handleQuantityChange(1, index);
+                } else {
+                const numericValue = parseFloat(value);
+                if (!isNaN(numericValue)) {
+                 handleQuantityChange(Math.max(1, numericValue), index);
+      }
+    }
+  }}
+  sx={{ backgroundColor: 'white', marginTop: '10px', width: '150px' }}
+/>
+
+
+
+
+            <TextField
+              label="Discount (%)"
+              type="number"
+              inputProps={{ min: 0, max: 100 }}
+              onChange={(e) => {
+                let value = parseFloat(e.target.value);
+                if (!isNaN(value)) {
+                  value = Math.max(0, Math.min(100, value)); // Clamp value between 0 and 100
+                  handleDiscountChange(value, index);
+                }
+              }}
+              sx={{ backgroundColor: 'white', marginTop: '10px', width: '150px' }}
+            />
+
+            <Box sx={{ flexGrow: '4', display: 'flex', justifyContent: 'flex-end', paddingRight: '30px' }}>
+              <Button
+                variant="contained"
+                sx={{ backgroundColor: 'red', borderRadius: '100px' }}
+                onClick={() => {
+                  handleRemoveInvoiceItem(item);
+                }}
+              >
+                X
+              </Button>
             </Box>
-             
-            
+          </Box>
+        ))}
 
-           
-            
-            <Button onClick={handleSubmit}>Submit</Button>
-        </GenericModal>  
+        <Button
+          sx={{ alignSelf: 'flex-end', margin: '10px', fontSize: '12px', fontWeight: 'bold' }}
+          variant="contained"
+          onClick={() => {
+            handleAddInvoiceItem();
+          }}
+        >
+          Add new Invoice item
+        </Button>
+
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
+          <TextField
+            label="Total value without PDV (KM)"
+            placeholder="Total value without PDV"
+            value={newInvoice.totalValueWithoutPdv.toFixed(2)}
+            InputProps={{
+              readOnly: true,
+            }}
+            sx={{ marginTop: '10px', backgroundColor: 'white', width: '200px' }}
+          />
+          <TextField
+            label="Total value with PDV (KM)"
+            placeholder="Total value with PDV"
+            value={newInvoice.totalValueWithPdv.toFixed(2)}
+            InputProps={{
+              readOnly: true,
+            }}
+            sx={{ marginTop: '10px', backgroundColor: 'white', width: '200px' }}
+          />
+        </Box>
+      </Box>
+
+      <Button onClick={handleSubmit}>Submit</Button>
+    </GenericModal>
+
 
    
 
@@ -578,6 +695,4 @@ const handlePriceWithoutPdvChange = (value: number, index: number) => {
     </Box>
     </>
 }
-
-
 export default Invoices

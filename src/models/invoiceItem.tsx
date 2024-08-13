@@ -8,5 +8,6 @@ interface InvoiceItem{
     priceWithPdv:number|null,
     sumWithoutPdv:number|null,
     sumWithPdv:number|null,
+    originalPriceWithPdv?: number | null,
     discount:number|null
 }
