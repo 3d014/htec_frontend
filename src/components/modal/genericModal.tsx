@@ -1,5 +1,5 @@
-import { Box, Button, Dialog, useMediaQuery } from "@mui/material"
-
+import { Box, Dialog, useMediaQuery } from "@mui/material"
+import ClearIcon from '@mui/icons-material/Clear'
 import styles from "./modal.styles"
 
 
@@ -16,7 +16,9 @@ const genericModal: React.FC<ModalProps> = ({ isOpen, onClose,children })=>{
     
 
     return <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth='md' sx={{display:'flex',justifyContent:'center',alignItems:'center'}} >
-       <Button sx={{alignSelf:'flex-end',width:'100px'}} onClick={onClose}>Close</Button>
+    
+       <ClearIcon sx={{alignSelf:'flex-end',margin:'5px',cursor:'pointer'}} onClick={()=>{onClose()}}></ClearIcon>
+
         <Box sx={isSmallScreen?styles.smallerScreen.modal : styles.largerScreen.modal}>
             {children} 
         </Box> 

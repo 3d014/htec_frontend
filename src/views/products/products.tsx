@@ -11,7 +11,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import Category from '../../models/category'
 import fetchCategories from '../../utils/fetchFunctions/fetchCategories'
 import fetchProductsData from '../../utils/fetchFunctions/fetchProducts'
-import { AxiosError } from 'axios'
+
 import { toast } from 'react-toastify'
 const initialCategory:Category={ categoryId:'',
 categoryName:''}

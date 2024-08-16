@@ -120,6 +120,8 @@ const Categories=()=>{
         },
         {getHeader:()=>'Category Name',
             getValue:(Category:Category)=>Category.categoryName
+        },{getHeader:()=>'Category Budget percangate',
+            getValue:(Category:Category)=>'50%'
         }
     ]
     return <Box sx={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center'}}>
