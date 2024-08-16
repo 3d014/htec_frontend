@@ -11,18 +11,9 @@ import { toast } from "react-toastify";
 import fetchBudgetForMonthYear from "../../utils/fetchFunctions/fetchBudgetForMonthYear";
 import { Check } from "@mui/icons-material";
 import Category from "../../models/category";
+import fetchCategories from "../../utils/fetchFunctions/fetchCategories";
 
-// Funkcija za dohvat kategorija
-const fetchCategories = async (setCategories: React.Dispatch<React.SetStateAction<Category[]>>) => {
-    try {
-        const response = await axiosInstance.get("/api/categories", {
-            headers: { Authorization: localStorage.getItem('token') }
-        });
-        setCategories(response.data);
-    } catch (error) {
-        console.error("Error fetching categories:", error);
-    }
-};
+
 
 const generateMonthNames = (): string[] => {
     const monthsArray: string[] = [];
@@ -96,9 +87,12 @@ const Budgets = () => {
         try {
             const budgets = Object.keys(allowedBudgets).map(categoryId => ({
                 categoryId,
-                totalBudget: allowedBudgets[categoryId]
+                totalValue: allowedBudgets[categoryId]
             }));
-            await axiosInstance.put(`/api/budget/${selectedYear}/${selectedMonth}`, { budgets }, {
+            let budgetData=budgets
+            let month=selectedMonth
+            let year=selectedYear
+            await axiosInstance.post(`/api/budget/`, { budgetData,month,year}, {
                 headers: { Authorization: localStorage.getItem('token') }
             });
             setIsConfirmationOpen(false);
@@ -156,7 +150,7 @@ const Budgets = () => {
     };
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }} >
             <Box sx={{ marginTop: '10px', display: 'flex', flexDirection: 'row', gap: '20px', padding: '20px', justifyContent: 'space-around', flexWrap: 'wrap' }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-around', gap: '20px' }}>
                     <Typography sx={{ backgroundColor: '#32675B', borderRadius: '5px', textAlign: 'center', width: '100px', padding: '20px', color: 'white' }}>MONTH</Typography>
@@ -202,7 +196,7 @@ const Budgets = () => {
                         <Box key={category.categoryId} sx={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                              <Typography sx={{ fontWeight: 'bold', flex: '1' }}>{category.categoryName}</Typography>
                                 <TextField
-                                    sx={{ marginLeft: '10px', flex: '2' }}
+                                    sx={{ marginLeft: '10px', flex: '2' ,backgroundColor:'white'}}
                                         margin="normal"
                                         type="number"
                                         value={allowedBudgets[category.categoryId] || ''}

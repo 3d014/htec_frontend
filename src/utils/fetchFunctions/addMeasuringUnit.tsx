@@ -2,10 +2,11 @@ import axiosInstance from "../../api/axiosInstance";
 import { toast } from 'react-toastify';
 import MeasuringUnit from '../../models/measuringUnit';
 
-const addMeasuringUnit = async (measuringUnitName: string): Promise<MeasuringUnit> => {
+const addMeasuringUnit = async (measuringUnitName: string,measureId:string): Promise<MeasuringUnit> => {
     try {
+        let measuringUnitId=measureId
         const response = await axiosInstance.post('api/measuringUnits', 
-            { measuringUnitName }, 
+            { measuringUnitName,measuringUnitId }, 
             { headers: { Authorization: localStorage.getItem('token') } }
         );
 

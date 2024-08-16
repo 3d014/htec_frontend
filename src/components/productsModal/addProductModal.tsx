@@ -4,7 +4,7 @@ import styles from './addProductsModal.styles';
 import { Product } from '../../models/product';
 import { toast } from 'react-toastify';
 import Category from '../../models/category';
-
+import { v4 as uuidv4 } from "uuid";
 import fetchCategories from '../../utils/fetchFunctions/fetchCategories';
 import fetchProducts from '../../utils/fetchFunctions/fetchProducts';
 import MeasuringUnit from '../../models/measuringUnit';
@@ -20,15 +20,16 @@ interface AddProductModalProps {
 }
 
 const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSave, initialProduct, isEdit }) => {
+    let measureId=uuidv4()
     const [productId, setProductId] = useState<string | undefined>(undefined);
     const [productName, setProductName] = useState('');
-    const [productMeasure, setProductMeasure] = useState<MeasuringUnit | null>(null);
+    const [productMeasure, setProductMeasure] = useState<MeasuringUnit | null>({measuringUnitName:'',measuringUnitId:measureId});
 
     const [productsData, setProductsData] = useState<Product[]>([]);
     const [measuringUnitsData, setMeasuringUnitsData] = useState<MeasuringUnit[]>([]);
 
     const [measuringUnitInputValue, setMeasuringUnitInputValue] = useState<string>('');
-
+     
     const handleSaveProduct = () => {
         const product: Product = {
             productId,
@@ -51,7 +52,8 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSa
 
         onSave(product);
         setProductName('');
-        setProductMeasure({ measuringUnitId: '', measuringUnitName: '' });
+        setProductMeasure({ measuringUnitId: measureId, measuringUnitName: '' });
+       
         onClose();
         setSelectedCategory(null);
     };
@@ -62,25 +64,33 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSa
     }]);
     const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
 
-    useEffect(() => {
+    useEffect( () => {
         fetchProducts(setProductsData);
         fetchCategories(setCategoriesData);
         fetchMeasuringUnits(setMeasuringUnitsData);
         
         if (initialProduct) {
+            let id=measuringUnitsData.find((unit)=>{unit.measuringUnitName==initialProduct.measuringUnit})
             setProductId(initialProduct.productId);
             setProductName(initialProduct.productName);
-            setProductMeasure({ measuringUnitName: initialProduct.measuringUnit });
+            setProductMeasure({
+                measuringUnitName: initialProduct.measuringUnit,
+                measuringUnitId: id?.measuringUnitId
 
+            });
             const selectedCategory = categoriesData.find(category => category.categoryId === initialProduct.categoryId) || null;
             setSelectedCategory(selectedCategory);
         } else {
             setProductId(undefined);
             setProductName('');
-            setProductMeasure({ measuringUnitName: '' });
+            
+            setProductMeasure({ measuringUnitName: '' , measuringUnitId:measureId});
             setSelectedCategory(null);
         }
     }, [initialProduct]);
+    useEffect(() => {
+        fetchMeasuringUnits(setMeasuringUnitsData);
+    }, []);
 
     const isSmallScreen = useMediaQuery("(max-width:600px)");
 
@@ -98,19 +108,29 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSa
                 />
 
                 <Autocomplete
+                
                     sx={isSmallScreen ? styles.smallerScreen.textField : styles.largerScreen.textField}
                     options={measuringUnitsData}
                     value={productMeasure}
                     inputValue={measuringUnitInputValue}
                     onInputChange={(_, newInputValue) => setMeasuringUnitInputValue(newInputValue)}
-                    getOptionLabel={(option) => typeof option === 'string' ? option : option.measuringUnitName}
+                    getOptionLabel={(option) => {
+                        if (typeof option === 'string') {
+                        return option;
+                    }
+                    if (option && option.measuringUnitName) {
+                        return option.measuringUnitName;
+                    }
+                    return '';
+                    }
+                    }
                     filterOptions={(options, params) => {
                         const filtered = filter(options, params);
                         const { inputValue } = params;
                         // Suggest the creation of a new measuring unit if it doesn't already exist
-                        if (inputValue !== '' && !options.some(option => option.measuringUnitName === inputValue)) {
+                        if (inputValue !== '' && !options.some(option => option.measuringUnitName === inputValue) && inputValue.trim()!=='') {
                             filtered.push({
-                                measuringUnitId: '',
+                                measuringUnitId: measureId,
                                 measuringUnitName: inputValue
                             });
                         }
@@ -118,13 +138,14 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSa
                     }}
                     renderInput={(params) => <TextField {...params} label='Measuring Unit' />}
                     renderOption={(props, option) => (
-                        <Box component="li" {...props}>
-                            {option.measuringUnitId === '' ? (
+                        <Box component="li" {...props}  key={option.measuringUnitId || uuidv4()}>
+                            {option.measuringUnitId === measureId ? (
                                 <Button
                                     onClick={async () => {
-                                        const newUnit = await addMeasuringUnit(measuringUnitInputValue);
+                                        const newUnit = await addMeasuringUnit(measuringUnitInputValue,measureId);
                                         setMeasuringUnitsData([...measuringUnitsData, newUnit]);
                                         setProductMeasure(newUnit);
+                                        fetchMeasuringUnits(setMeasuringUnitsData)
                                     }}
                                 >
                                     Add new measuring unit "{measuringUnitInputValue}"
@@ -134,7 +155,13 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSa
                             )}
                         </Box>
                     )}
-                    onChange={(_event, newValue) => setProductMeasure(newValue)}
+                    freeSolo
+                    
+                    onChange={(_event, newValue) => {
+                        if(typeof newValue==='string'){}
+                        else setProductMeasure(newValue)}}
+                        
+               
                 />
 
                 <Autocomplete

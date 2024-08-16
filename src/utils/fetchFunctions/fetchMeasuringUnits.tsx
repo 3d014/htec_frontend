@@ -5,10 +5,10 @@ const fetchMeasuringUnits = async (measuringUnitsStateSetter:React.Dispatch<Reac
     try {
         const response = await axiosInstance.get('/api/measuringUnits',{headers:{Authorization:localStorage.getItem('token')}})
         
-        const data: MeasuringUnit[] = response.data;
+        const data: MeasuringUnit[] = await response.data;
         
         measuringUnitsStateSetter(data);
-       
+       if(true){}
         
     } catch (error) {
         console.error('Error fetching data:', error);
