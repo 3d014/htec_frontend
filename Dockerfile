@@ -1,20 +1,16 @@
-# Koristi Node.js kao osnovnu sliku
-FROM node:20.11.1
-
-# Postavi radni direktorijum u kontejneru
+# Stage 1: Build
+FROM node:20.11.1 AS build
 WORKDIR /app
-
-# Kopiraj package.json i package-lock.json (ako postoje)
 COPY package*.json ./
-# Instaliraj zavisnosti
 RUN npm install
-
-# Kopiraj sav kod u radni direktorijum
 COPY . .
+ARG REACT_APP_BACKEND_URL
+ENV REACT_APP_BACKEND_URL=$REACT_APP_BACKEND_URL
+RUN npm run build
 
-# Otvori port 5173 za frontend (ako koristiš ovaj port za hot-reload)
-EXPOSE 5173
-
-ENV HOST=0.0.0.0
-# Pokreni aplikaciju sa hot-reloadom
-CMD ["sh", "-c", "npm install && npm run dev -- --host 0.0.0.0"]
+# Stage 2: Serve with Nginx
+FROM nginx:alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
